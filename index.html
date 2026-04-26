@@ -1,0 +1,1899 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>World Kitchen</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════
+   TOKENS & THEME
+═══════════════════════════════════════ */
+:root {
+  --ink: #181410;
+  --paper: #F7F4EE;
+  --cream: #EDE8DC;
+  --gold: #B8860B;
+  --gold-light: #D4A843;
+  --rust: #9B3A1A;
+  --sage: #4A6741;
+  --muted: #7A7060;
+  --border: rgba(24,20,16,.1);
+  --border-strong: rgba(24,20,16,.2);
+  --card: #FFFFFF;
+  --card-hover: #FAFAF7;
+  --shadow: 0 2px 8px rgba(24,20,16,.07);
+  --shadow-lg: 0 16px 48px rgba(24,20,16,.16);
+  --shadow-xl: 0 32px 80px rgba(24,20,16,.22);
+  --radius: 16px;
+  --transition: .2s cubic-bezier(.4,0,.2,1);
+}
+[data-theme="dark"] {
+  --ink: #F0EDE6;
+  --paper: #181510;
+  --cream: #242018;
+  --gold: #D4A843;
+  --gold-light: #E8C060;
+  --rust: #E05030;
+  --muted: #9A9080;
+  --border: rgba(240,237,230,.1);
+  --border-strong: rgba(240,237,230,.18);
+  --card: #201D18;
+  --card-hover: #2A2620;
+  --shadow: 0 2px 8px rgba(0,0,0,.3);
+  --shadow-lg: 0 16px 48px rgba(0,0,0,.4);
+  --shadow-xl: 0 32px 80px rgba(0,0,0,.5);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+  transition: background var(--transition), color var(--transition);
+}
+
+/* ═══════════════════════════════════════
+   SETUP BANNER
+═══════════════════════════════════════ */
+#setup-banner {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 11px 2rem;
+  font-size: 12.5px;
+  line-height: 1.5;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+#setup-banner strong { color: var(--gold-light); }
+#setup-banner a { color: var(--gold-light); }
+#api-form { display: flex; gap: 7px; align-items: center; flex-wrap: wrap; }
+#api-input {
+  padding: 5px 11px; border-radius: 6px;
+  border: 1px solid rgba(255,255,255,.2);
+  background: rgba(255,255,255,.1); color: #fff;
+  font-size: 12px; font-family: 'Outfit', sans-serif; width: 260px;
+}
+#api-input::placeholder { color: rgba(255,255,255,.38); }
+#api-input:focus { outline: none; border-color: var(--gold-light); }
+#api-btn {
+  padding: 5px 13px; background: var(--gold); color: #fff; border: none;
+  border-radius: 6px; font-size: 12px; font-family: 'Outfit', sans-serif;
+  font-weight: 600; cursor: pointer; transition: background .15s;
+}
+#api-btn:hover { background: var(--gold-light); }
+#api-status { font-size: 11.5px; }
+#api-status.ok { color: #7FE0A0; }
+#api-status.err { color: #F08080; }
+
+/* ═══════════════════════════════════════
+   TOP BAR
+═══════════════════════════════════════ */
+.topbar {
+  max-width: 1300px; margin: 0 auto;
+  padding: 2rem 2rem 1.5rem;
+  display: flex; align-items: flex-end;
+  justify-content: space-between; gap: 1.5rem;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--border-strong);
+}
+.topbar-left {}
+.eyebrow {
+  font-size: 9.5px; font-weight: 600; letter-spacing: .2em;
+  text-transform: uppercase; color: var(--gold); margin-bottom: .4rem;
+}
+h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(32px, 5.5vw, 58px);
+  font-weight: 700; line-height: 1; color: var(--ink);
+}
+h1 em { font-style: italic; color: var(--rust); }
+.header-sub {
+  font-size: 12.5px; color: var(--muted);
+  margin-top: .5rem; font-weight: 300;
+}
+.topbar-right {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.icon-btn {
+  width: 38px; height: 38px;
+  border-radius: 50%; border: 1px solid var(--border-strong);
+  background: var(--card); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; transition: all .15s; color: var(--ink);
+  box-shadow: var(--shadow); position: relative;
+}
+.icon-btn:hover { background: var(--cream); transform: translateY(-1px); }
+.icon-btn .badge {
+  position: absolute; top: -3px; right: -3px;
+  background: var(--rust); color: #fff;
+  font-size: 9px; font-weight: 700;
+  width: 16px; height: 16px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+}
+.surprise-btn {
+  padding: 8px 18px; border-radius: 999px;
+  border: 1px solid var(--gold); background: transparent;
+  color: var(--gold); font-size: 12.5px; font-family: 'Outfit', sans-serif;
+  font-weight: 600; cursor: pointer; transition: all .15s;
+  display: flex; align-items: center; gap: 6px;
+}
+.surprise-btn:hover { background: var(--gold); color: #fff; }
+
+/* ═══════════════════════════════════════
+   SEARCH & FILTER BAR
+═══════════════════════════════════════ */
+.filter-section {
+  max-width: 1300px; margin: 0 auto;
+  padding: 1.2rem 2rem;
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 100;
+  background: var(--paper);
+  transition: background var(--transition);
+}
+.filter-section.scrolled {
+  box-shadow: 0 4px 20px rgba(24,20,16,.08);
+}
+.search-row {
+  display: flex; gap: 10px; align-items: center; margin-bottom: .8rem;
+}
+.search-wrap {
+  position: relative; flex: 1; max-width: 380px;
+}
+.search-icon {
+  position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+  font-size: 14px; color: var(--muted); pointer-events: none;
+}
+#search-input {
+  width: 100%; padding: 8px 14px 8px 34px;
+  border-radius: 999px; border: 1px solid var(--border-strong);
+  background: var(--card); color: var(--ink);
+  font-size: 13px; font-family: 'Outfit', sans-serif;
+  transition: border-color .15s, box-shadow .15s;
+}
+#search-input:focus {
+  outline: none; border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(184,134,11,.12);
+}
+#search-input::placeholder { color: var(--muted); }
+.search-clear {
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; color: var(--muted);
+  cursor: pointer; font-size: 13px; display: none; padding: 2px;
+}
+.filter-row {
+  display: flex; flex-wrap: wrap; gap: 5px;
+  align-items: center; margin-bottom: 5px;
+}
+.filter-row:last-of-type { margin-bottom: 0; }
+.fl {
+  font-size: 9px; font-weight: 600; color: var(--muted);
+  text-transform: uppercase; letter-spacing: .12em;
+  min-width: 58px; margin-right: 3px;
+}
+.pill {
+  padding: 4px 11px; border-radius: 999px;
+  border: 1px solid var(--border-strong); background: transparent;
+  font-size: 11px; color: var(--muted); cursor: pointer;
+  font-family: 'Outfit', sans-serif; font-weight: 400;
+  transition: all .13s; white-space: nowrap;
+}
+.pill:hover { background: var(--cream); color: var(--ink); }
+.pill.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.pill.lv-Beginner.active { background: #2D7A5C; border-color: #2D7A5C; }
+.pill.lv-Moderate.active { background: #9B6800; border-color: #9B6800; }
+.pill.lv-Advanced.active { background: var(--rust); border-color: var(--rust); }
+.filter-footer {
+  display: flex; align-items: center;
+  justify-content: space-between; margin-top: 8px;
+}
+.result-info { font-size: 11.5px; color: var(--muted); }
+.filter-actions-right { display: flex; gap: 8px; }
+.clear-btn {
+  font-size: 11px; color: var(--muted); background: none;
+  border: 1px solid var(--border-strong); border-radius: 999px;
+  padding: 3px 11px; cursor: pointer; font-family: 'Outfit', sans-serif;
+  transition: all .13s;
+}
+.clear-btn:hover { background: var(--cream); color: var(--ink); }
+
+/* ═══════════════════════════════════════
+   RECENTLY VIEWED STRIP
+═══════════════════════════════════════ */
+#recent-strip {
+  max-width: 1300px; margin: 0 auto;
+  padding: .9rem 2rem 0;
+  display: none;
+}
+.recent-label {
+  font-size: 9.5px; font-weight: 600; color: var(--muted);
+  text-transform: uppercase; letter-spacing: .12em; margin-bottom: .5rem;
+}
+.recent-list {
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+.recent-chip {
+  padding: 4px 12px; border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: var(--card); color: var(--ink);
+  font-size: 11.5px; cursor: pointer;
+  transition: all .13s; font-family: 'Outfit', sans-serif;
+  display: flex; align-items: center; gap: 5px;
+}
+.recent-chip:hover { background: var(--cream); }
+.recent-chip .chip-emoji { font-size: 13px; }
+
+/* ═══════════════════════════════════════
+   GRID
+═══════════════════════════════════════ */
+.grid-wrap {
+  max-width: 1300px; margin: 0 auto;
+  padding: 1.5rem 2rem 4rem;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(265px, 1fr));
+  gap: 16px;
+}
+.empty-state {
+  grid-column: 1/-1; text-align: center;
+  padding: 4rem; color: var(--muted); font-size: 14px; display: none;
+}
+.empty-state .empty-icon { font-size: 48px; margin-bottom: 1rem; }
+
+/* ═══════════════════════════════════════
+   CARD
+═══════════════════════════════════════ */
+.card {
+  background: var(--card); border-radius: var(--radius);
+  overflow: hidden; cursor: pointer;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+  animation: fadeUp .3s ease both;
+  position: relative;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--border-strong); }
+
+/* Favourite button */
+.fav-btn {
+  position: absolute; top: 10px; right: 10px; z-index: 5;
+  width: 30px; height: 30px; border-radius: 50%;
+  background: rgba(255,255,255,.85); backdrop-filter: blur(4px);
+  border: none; cursor: pointer; font-size: 15px;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform .15s, background .15s;
+  box-shadow: 0 1px 4px rgba(0,0,0,.15);
+}
+.fav-btn:hover { transform: scale(1.15); background: #fff; }
+.fav-btn.active { background: #fff2f2; }
+
+/* Card image */
+.card-img {
+  position: relative; height: 178px; overflow: hidden;
+  background: var(--cream);
+}
+.card-img img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  transition: transform .4s ease;
+}
+.card:hover .card-img img { transform: scale(1.06); }
+.card-emoji-fallback {
+  width: 100%; height: 100%; display: flex;
+  align-items: center; justify-content: center; font-size: 50px;
+}
+.lv-badge {
+  position: absolute; top: 10px; left: 10px;
+  font-size: 9.5px; font-weight: 600;
+  padding: 3px 9px; border-radius: 999px;
+}
+.lv-Beginner  { background: rgba(45,122,92,.9);  color: #fff; }
+.lv-Moderate  { background: rgba(155,104,0,.9);  color: #fff; }
+.lv-Advanced  { background: rgba(155,58,26,.9);  color: #fff; }
+.photo-credit {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 28px 10px 6px;
+  background: linear-gradient(transparent, rgba(0,0,0,.6));
+  font-size: 9px; color: rgba(255,255,255,.78); line-height: 1.4;
+}
+.photo-credit a { color: rgba(255,255,255,.7); text-decoration: none; border-bottom: 1px solid rgba(255,255,255,.3); }
+.photo-credit a:hover { color: #fff; }
+
+/* Card body */
+.card-body { padding: 13px 14px 14px; }
+.card-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px; font-weight: 700; line-height: 1.2;
+  margin-bottom: 7px; color: var(--ink);
+}
+.card-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px; }
+.ctag {
+  font-size: 9.5px; padding: 2px 8px; border-radius: 999px;
+  background: var(--paper); color: var(--muted);
+  border: 1px solid var(--border); font-weight: 500;
+}
+.ctag-fusion { background: #EDE8FF; color: #3B1FA8; border-color: #C5B8FF; }
+.ctag-offbeat { background: #FFF3E0; color: #7A3D00; border-color: #FFD9A0; }
+.ctag-traditional { background: #E8F4FF; color: #0A3060; border-color: #B8D8FF; }
+.ctag-homestyle { background: #E8FFE0; color: #1A5C00; border-color: #B8E8B0; }
+.ctag-streetfood { background: #FFE8F0; color: #7A001A; border-color: #F0B8C8; }
+.ctag-regional { background: #F0E8FF; color: #3A007A; border-color: #C8B0F0; }
+
+/* Difficulty stars */
+.difficulty-stars { display: flex; gap: 2px; margin-bottom: 6px; }
+.star { font-size: 11px; color: var(--border-strong); }
+.star.on { color: var(--gold); }
+
+/* Allergen chips */
+.allergen-row { display: flex; gap: 3px; flex-wrap: wrap; margin-bottom: 7px; }
+.allergen {
+  font-size: 9px; padding: 1px 6px; border-radius: 999px;
+  font-weight: 600; letter-spacing: .03em;
+}
+.a-gf { background: #E8F5E0; color: #2D6A1A; border: 1px solid #B8E0A0; }
+.a-df { background: #E0F0FF; color: #1A4A7A; border: 1px solid #A8D0F0; }
+.a-vg { background: #F0FFE8; color: #2A6A00; border: 1px solid #B0E890; }
+.a-nf { background: #FFF5E0; color: #7A4A00; border: 1px solid #F0D8A0; }
+
+/* Hover ingredient preview */
+.card-preview {
+  max-height: 0; overflow: hidden;
+  transition: max-height .25s ease, opacity .2s ease;
+  opacity: 0;
+}
+.card:hover .card-preview { max-height: 120px; opacity: 1; }
+.card-preview-inner {
+  border-top: 1px solid var(--border);
+  padding: 8px 14px 12px;
+  font-size: 11px; color: var(--muted); line-height: 1.7;
+}
+.card-preview-label {
+  font-size: 9px; font-weight: 600; color: var(--gold);
+  text-transform: uppercase; letter-spacing: .1em;
+  margin-bottom: 4px;
+}
+
+/* ═══════════════════════════════════════
+   MODAL / BOTTOM SHEET
+═══════════════════════════════════════ */
+.overlay {
+  position: fixed; inset: 0;
+  background: rgba(24,20,16,.6); backdrop-filter: blur(6px);
+  z-index: 500; display: none;
+  align-items: flex-start; justify-content: center;
+  padding: 2rem 1rem; overflow-y: auto;
+}
+.overlay.open { display: flex; }
+
+/* Desktop modal */
+.modal {
+  background: var(--card); border-radius: 20px;
+  max-width: 580px; width: 100%; overflow: hidden;
+  margin: auto; position: relative;
+  box-shadow: var(--shadow-xl);
+  animation: modalIn .25s ease;
+}
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(.96) translateY(14px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* Mobile bottom sheet */
+@media (max-width: 640px) {
+  .overlay {
+    align-items: flex-end; padding: 0;
+    overflow: hidden;
+  }
+  .modal {
+    border-radius: 20px 20px 0 0; margin: 0;
+    max-height: 92vh; overflow-y: auto;
+    animation: sheetUp .3s cubic-bezier(.2,0,0,1);
+  }
+  @keyframes sheetUp {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+  }
+  .modal-drag-handle {
+    display: block;
+  }
+}
+.modal-drag-handle {
+  display: none;
+  width: 36px; height: 4px;
+  background: var(--border-strong); border-radius: 999px;
+  margin: 10px auto 0;
+}
+
+.modal-img-wrap {
+  position: relative; height: 220px; overflow: hidden;
+  background: var(--cream);
+}
+.modal-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.modal-emoji-fallback {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center; font-size: 72px;
+}
+.mclose {
+  position: absolute; top: 12px; right: 12px;
+  background: rgba(0,0,0,.5); border: none; color: #fff;
+  font-size: 14px; cursor: pointer; border-radius: 50%;
+  width: 30px; height: 30px;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 10; transition: background .15s;
+}
+.mclose:hover { background: rgba(0,0,0,.8); }
+.modal-photo-credit {
+  background: rgba(24,20,16,.88);
+  color: rgba(247,244,238,.65);
+  font-size: 9.5px; padding: 6px 14px; line-height: 1.5;
+}
+.modal-photo-credit a { color: rgba(212,168,67,.9); text-decoration: none; }
+.modal-photo-credit a:hover { color: var(--gold-light); }
+.modal-photo-credit.hidden { display: none; }
+
+.modal-body { padding: 1.4rem 1.6rem 1.8rem; }
+.modal-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px; font-weight: 700; margin-bottom: 8px; color: var(--ink);
+}
+.modal-badges { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; }
+.mbadge {
+  font-size: 10.5px; padding: 3px 10px; border-radius: 999px;
+  background: var(--paper); color: var(--muted);
+  border: 1px solid var(--border); font-weight: 500;
+}
+.mbadge.lvb { background: #9FE1CB; color: #085041; border: none; }
+.mbadge.lvm { background: #FAC775; color: #633806; border: none; }
+.mbadge.lva { background: #F5C4B3; color: #4A1B0C; border: none; }
+
+/* Difficulty + time row */
+.modal-meta-row {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 10px;
+  padding: 10px 0; margin-bottom: 10px;
+  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+}
+.meta-block { display: flex; flex-direction: column; gap: 3px; }
+.meta-label {
+  font-size: 9px; font-weight: 600; color: var(--gold);
+  text-transform: uppercase; letter-spacing: .1em;
+}
+.meta-val { font-size: 13px; color: var(--ink); font-weight: 500; }
+.modal-stars { display: flex; gap: 2px; }
+.mstar { font-size: 13px; color: var(--border-strong); }
+.mstar.on { color: var(--gold); }
+
+/* Allergens in modal */
+.modal-allergens { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 12px; }
+
+/* Serving scaler */
+.scaler-row {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--paper); border-radius: 10px;
+  padding: 10px 14px; margin-bottom: 14px;
+  border: 1px solid var(--border);
+}
+.scaler-label { font-size: 12px; color: var(--muted); flex: 1; }
+.scaler-label strong { color: var(--ink); font-weight: 600; }
+.scaler-btns { display: flex; align-items: center; gap: 8px; }
+.scaler-btn {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 1px solid var(--border-strong); background: var(--card);
+  color: var(--ink); font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .13s; font-family: 'Outfit', sans-serif; line-height: 1;
+}
+.scaler-btn:hover { background: var(--cream); }
+.scaler-val {
+  font-size: 15px; font-weight: 600; color: var(--ink);
+  min-width: 28px; text-align: center;
+}
+
+.modal-desc {
+  font-size: 13px; color: var(--muted); line-height: 1.75;
+  margin-bottom: 1.2rem; padding-bottom: 1.2rem;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Equipment */
+.equip-row {
+  display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1rem;
+}
+.equip-chip {
+  font-size: 11px; padding: 3px 10px; border-radius: 999px;
+  background: var(--cream); color: var(--muted);
+  border: 1px solid var(--border); font-weight: 500;
+  display: flex; align-items: center; gap: 4px;
+}
+
+.msec-label {
+  font-size: 9.5px; font-weight: 700; color: var(--gold);
+  text-transform: uppercase; letter-spacing: .15em;
+  margin-bottom: 8px; margin-top: 1.2rem;
+}
+.msec ul, .msec ol {
+  padding-left: 1.1rem; font-size: 12.5px;
+  color: var(--ink); line-height: 1.95;
+}
+.msec li { margin-bottom: 2px; }
+.msec li .scaled { color: var(--rust); font-weight: 600; }
+
+/* Pairing */
+.pairing-box {
+  margin-top: 1rem; padding: 10px 13px;
+  background: linear-gradient(135deg, var(--cream), var(--paper));
+  border-radius: 10px; border: 1px solid var(--border);
+}
+.pairing-label {
+  font-size: 9.5px; font-weight: 700; color: var(--gold);
+  text-transform: uppercase; letter-spacing: .12em; margin-bottom: 5px;
+}
+.pairing-val { font-size: 12.5px; color: var(--muted); line-height: 1.55; }
+
+.mtip {
+  margin-top: 1rem;
+  background: linear-gradient(135deg, #FDF6E8, #F7F0D8);
+  border-left: 3px solid var(--gold); padding: 11px 14px;
+  border-radius: 0 10px 10px 0;
+  font-size: 12px; color: var(--muted); line-height: 1.6;
+}
+[data-theme="dark"] .mtip {
+  background: linear-gradient(135deg, #2A2215, #221D10);
+}
+.mtip strong { color: var(--rust); font-weight: 600; }
+
+/* Modal action bar */
+.modal-actions {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  margin-top: 1.4rem; padding-top: 1.2rem;
+  border-top: 1px solid var(--border);
+}
+.action-btn {
+  padding: 8px 16px; border-radius: 999px;
+  border: 1px solid var(--border-strong); background: var(--paper);
+  color: var(--ink); font-size: 12px; font-family: 'Outfit', sans-serif;
+  font-weight: 500; cursor: pointer; transition: all .15s;
+  display: flex; align-items: center; gap: 6px;
+}
+.action-btn:hover { background: var(--cream); }
+.action-btn.primary {
+  background: var(--ink); color: var(--paper); border-color: var(--ink);
+}
+.action-btn.primary:hover { background: var(--rust); border-color: var(--rust); }
+.action-btn.fav-modal-btn.active {
+  background: #fff2f2; border-color: #ffb0b0; color: var(--rust);
+}
+
+/* ═══════════════════════════════════════
+   FAVOURITES PANEL
+═══════════════════════════════════════ */
+.panel-overlay {
+  position: fixed; inset: 0;
+  background: rgba(24,20,16,.5); backdrop-filter: blur(4px);
+  z-index: 600; display: none;
+}
+.panel-overlay.open { display: block; }
+.fav-panel {
+  position: fixed; right: 0; top: 0; bottom: 0;
+  width: min(380px, 95vw);
+  background: var(--card); z-index: 700;
+  box-shadow: var(--shadow-xl);
+  display: flex; flex-direction: column;
+  transform: translateX(100%);
+  transition: transform .3s cubic-bezier(.4,0,.2,1);
+}
+.fav-panel.open { transform: translateX(0); }
+.fav-panel-header {
+  padding: 1.4rem 1.5rem 1rem;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.fav-panel-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px; font-weight: 700; color: var(--ink);
+}
+.panel-close {
+  background: none; border: none; font-size: 18px;
+  cursor: pointer; color: var(--muted); padding: 4px;
+}
+.fav-list {
+  flex: 1; overflow-y: auto; padding: 1rem 1.5rem;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.fav-item {
+  padding: 10px 13px; border-radius: 12px;
+  border: 1px solid var(--border); background: var(--paper);
+  display: flex; align-items: center; gap: 10px;
+  cursor: pointer; transition: all .13s;
+}
+.fav-item:hover { background: var(--cream); border-color: var(--border-strong); }
+.fav-item-emoji { font-size: 22px; }
+.fav-item-info { flex: 1; }
+.fav-item-name { font-size: 13px; font-weight: 500; color: var(--ink); }
+.fav-item-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.fav-remove {
+  background: none; border: none; color: var(--muted);
+  cursor: pointer; font-size: 16px; padding: 3px;
+  transition: color .13s;
+}
+.fav-remove:hover { color: var(--rust); }
+.fav-empty {
+  text-align: center; padding: 3rem 1rem;
+  color: var(--muted); font-size: 13px;
+}
+.fav-empty .fav-empty-icon { font-size: 42px; margin-bottom: 1rem; }
+
+/* ═══════════════════════════════════════
+   PRINT STYLES
+═══════════════════════════════════════ */
+@media print {
+  body * { visibility: hidden; }
+  #print-area, #print-area * { visibility: visible; }
+  #print-area {
+    position: fixed; inset: 0;
+    background: #fff; color: #000;
+    padding: 2rem; font-family: Georgia, serif;
+  }
+  .no-print { display: none !important; }
+}
+#print-area { display: none; }
+#print-area.printing {
+  display: block;
+  position: fixed; inset: 0; z-index: 9999;
+  background: #fff; color: #000;
+  padding: 2.5rem 3rem; overflow-y: auto;
+  font-family: Georgia, serif;
+}
+.print-title { font-size: 28px; font-weight: bold; margin-bottom: 6px; }
+.print-meta { font-size: 13px; color: #666; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid #ddd; }
+.print-section-label { font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: .1em; color: #B8860B; margin: 1.2rem 0 .5rem; }
+.print-ing, .print-steps { font-size: 14px; line-height: 2; padding-left: 1.2rem; }
+.print-tip { margin-top: 1.2rem; padding: 10px 14px; background: #FDF6E8; border-left: 3px solid #B8860B; font-size: 13px; color: #555; }
+.print-close { position: fixed; top: 16px; right: 16px; background: #000; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+.print-attr { margin-top: 2rem; font-size: 11px; color: #999; border-top: 1px solid #eee; padding-top: 1rem; }
+
+/* ═══════════════════════════════════════
+   TOAST
+═══════════════════════════════════════ */
+#toast {
+  position: fixed; bottom: 2rem; left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--ink); color: var(--paper);
+  padding: 10px 20px; border-radius: 999px;
+  font-size: 13px; font-weight: 500;
+  box-shadow: var(--shadow-lg);
+  opacity: 0; transition: all .25s; z-index: 9000;
+  pointer-events: none; white-space: nowrap;
+}
+#toast.show {
+  opacity: 1; transform: translateX(-50%) translateY(0);
+}
+
+/* ═══════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════ */
+.footer {
+  max-width: 1300px; margin: 0 auto;
+  padding: 1.2rem 2rem 2.5rem;
+  border-top: 1px solid var(--border);
+  font-size: 11px; color: var(--muted); line-height: 1.7;
+}
+.footer a { color: var(--gold); text-decoration: none; }
+.footer a:hover { text-decoration: underline; }
+
+/* ═══════════════════════════════════════
+   SCROLLBAR
+═══════════════════════════════════════ */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+
+@media (max-width: 768px) {
+  .topbar { padding: 1.5rem 1rem 1rem; }
+  .filter-section { padding: .9rem 1rem; }
+  .grid-wrap { padding: 1rem 1rem 3rem; }
+  #recent-strip { padding: .7rem 1rem 0; }
+  #setup-banner { padding: 10px 1rem; }
+  .modal-body { padding: 1.1rem 1.2rem 1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- SETUP BANNER -->
+<div id="setup-banner">
+  <div>📷 <strong>Optional:</strong> Add Unsplash API key for food photos · <a href="https://unsplash.com/developers" target="_blank">Get free key</a></div>
+  <div id="api-form">
+    <input id="api-input" type="text" placeholder="Paste Unsplash Access Key…" autocomplete="off">
+    <button id="api-btn" onclick="saveKey()">Load Photos</button>
+    <span id="api-status"></span>
+  </div>
+</div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="eyebrow">Asia · Europe · Americas · UK · China Regions</div>
+    <h1>World <em>Kitchen</em></h1>
+    <p class="header-sub">130+ recipes · Traditional · Fusion · Regional · Street Food · Home-style</p>
+  </div>
+  <div class="topbar-right">
+    <button class="surprise-btn" onclick="surpriseMe()">🎲 Surprise me</button>
+    <button class="icon-btn" onclick="toggleTheme()" title="Toggle dark mode" id="theme-btn">🌙</button>
+    <button class="icon-btn" onclick="openFavPanel()" title="Favourites" id="fav-icon-btn">
+      ❤️ <span class="badge" id="fav-count" style="display:none">0</span>
+    </button>
+  </div>
+</div>
+
+<!-- FILTER SECTION -->
+<div class="filter-section" id="filter-section">
+  <div class="search-row">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input id="search-input" type="text" placeholder="Search recipes or ingredients…" oninput="onSearch(this)">
+      <button class="search-clear" id="search-clear" onclick="clearSearch()">✕</button>
+    </div>
+  </div>
+  <div class="filter-row">
+    <span class="fl">Level</span>
+    <button class="pill lv-Beginner active" data-g="level" data-v="All">All</button>
+    <button class="pill lv-Beginner" data-g="level" data-v="Beginner">🟢 Beginner</button>
+    <button class="pill lv-Moderate" data-g="level" data-v="Moderate">🟡 Moderate</button>
+    <button class="pill lv-Advanced" data-g="level" data-v="Advanced">🔴 Advanced</button>
+  </div>
+  <div class="filter-row">
+    <span class="fl">Style</span>
+    <button class="pill active" data-g="style" data-v="All">All</button>
+    <button class="pill" data-g="style" data-v="Traditional">Traditional</button>
+    <button class="pill" data-g="style" data-v="Fusion">Fusion</button>
+    <button class="pill" data-g="style" data-v="Off the Beat">Off the Beat</button>
+    <button class="pill" data-g="style" data-v="Home-style">Home-style</button>
+    <button class="pill" data-g="style" data-v="Street Food">Street Food</button>
+    <button class="pill" data-g="style" data-v="Regional">Regional</button>
+  </div>
+  <div class="filter-row">
+    <span class="fl">Region</span>
+    <button class="pill active" data-g="region" data-v="All">All</button>
+    <button class="pill" data-g="region" data-v="China Regions">🇨🇳 China</button>
+    <button class="pill" data-g="region" data-v="East Asia">🌏 East Asia</button>
+    <button class="pill" data-g="region" data-v="Southeast Asia">🌴 SE Asia</button>
+    <button class="pill" data-g="region" data-v="Mediterranean">🫒 Mediterranean</button>
+    <button class="pill" data-g="region" data-v="Western Europe">🏰 W. Europe</button>
+    <button class="pill" data-g="region" data-v="Eastern Europe">❄️ E. Europe</button>
+    <button class="pill" data-g="region" data-v="Scandinavia">🌊 Scandinavia</button>
+    <button class="pill" data-g="region" data-v="United Kingdom">🇬🇧 UK</button>
+    <button class="pill" data-g="region" data-v="North America">🗽 N. America</button>
+    <button class="pill" data-g="region" data-v="Latin America">🌶️ Latin America</button>
+  </div>
+  <div class="filter-row">
+    <span class="fl">Cuisine</span>
+    <button class="pill active" data-g="cuisine" data-v="All">All</button>
+    <button class="pill" data-g="cuisine" data-v="Cantonese">Cantonese</button>
+    <button class="pill" data-g="cuisine" data-v="Sichuan">Sichuan</button>
+    <button class="pill" data-g="cuisine" data-v="Shanghainese">Shanghainese</button>
+    <button class="pill" data-g="cuisine" data-v="Hakka">Hakka</button>
+    <button class="pill" data-g="cuisine" data-v="Teochew">Teochew</button>
+    <button class="pill" data-g="cuisine" data-v="Japanese">Japanese</button>
+    <button class="pill" data-g="cuisine" data-v="Korean">Korean</button>
+    <button class="pill" data-g="cuisine" data-v="Thai">Thai</button>
+    <button class="pill" data-g="cuisine" data-v="Vietnamese">Vietnamese</button>
+    <button class="pill" data-g="cuisine" data-v="Singaporean">Singaporean</button>
+    <button class="pill" data-g="cuisine" data-v="Malaysian">Malaysian</button>
+    <button class="pill" data-g="cuisine" data-v="Filipino">Filipino</button>
+    <button class="pill" data-g="cuisine" data-v="Indonesian">Indonesian</button>
+    <button class="pill" data-g="cuisine" data-v="Laotian">Laotian</button>
+    <button class="pill" data-g="cuisine" data-v="Italian">Italian</button>
+    <button class="pill" data-g="cuisine" data-v="French">French</button>
+    <button class="pill" data-g="cuisine" data-v="Spanish">Spanish</button>
+    <button class="pill" data-g="cuisine" data-v="Greek">Greek</button>
+    <button class="pill" data-g="cuisine" data-v="German">German</button>
+    <button class="pill" data-g="cuisine" data-v="Scandinavian">Scandinavian</button>
+    <button class="pill" data-g="cuisine" data-v="Eastern European">E. European</button>
+    <button class="pill" data-g="cuisine" data-v="British">British</button>
+    <button class="pill" data-g="cuisine" data-v="American">American</button>
+    <button class="pill" data-g="cuisine" data-v="Cajun">Cajun</button>
+    <button class="pill" data-g="cuisine" data-v="Mexican">Mexican</button>
+    <button class="pill" data-g="cuisine" data-v="Peruvian">Peruvian</button>
+    <button class="pill" data-g="cuisine" data-v="Brazilian">Brazilian</button>
+    <button class="pill" data-g="cuisine" data-v="Argentinian">Argentinian</button>
+  </div>
+  <div class="filter-row">
+    <span class="fl">Category</span>
+    <button class="pill active" data-g="cat" data-v="All">All</button>
+    <button class="pill" data-g="cat" data-v="Breakfast">Breakfast</button>
+    <button class="pill" data-g="cat" data-v="Eggs">Eggs</button>
+    <button class="pill" data-g="cat" data-v="Pasta & Noodles">Pasta & Noodles</button>
+    <button class="pill" data-g="cat" data-v="Rice">Rice</button>
+    <button class="pill" data-g="cat" data-v="Meat">Meat</button>
+    <button class="pill" data-g="cat" data-v="Seafood">Seafood</button>
+    <button class="pill" data-g="cat" data-v="Soups & Stews">Soups & Stews</button>
+    <button class="pill" data-g="cat" data-v="Vegetarian">Vegetarian</button>
+    <button class="pill" data-g="cat" data-v="Snacks & Street Food">Snacks</button>
+    <button class="pill" data-g="cat" data-v="Bread & Dough">Bread & Dough</button>
+    <button class="pill" data-g="cat" data-v="Desserts">Desserts</button>
+  </div>
+  <div class="filter-footer">
+    <span class="result-info" id="result-info"></span>
+    <div class="filter-actions-right">
+      <button class="clear-btn" onclick="clearFilters()">Clear all filters</button>
+    </div>
+  </div>
+</div>
+
+<!-- RECENTLY VIEWED -->
+<div id="recent-strip">
+  <div class="recent-label">Recently viewed</div>
+  <div class="recent-list" id="recent-list"></div>
+</div>
+
+<!-- GRID -->
+<div class="grid-wrap">
+  <div class="grid" id="grid">
+    <div class="empty-state" id="empty">
+      <div class="empty-icon">🍽️</div>
+      No recipes match. Try adjusting your filters or search.
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  📷 Food photography via <a href="https://unsplash.com?utm_source=world_kitchen&utm_medium=referral" target="_blank">Unsplash</a> · <a href="https://unsplash.com/license" target="_blank">Unsplash License</a> · Photographers credited on each recipe card.
+</div>
+
+<!-- RECIPE MODAL -->
+<div class="overlay" id="overlay">
+  <div class="modal" id="modal">
+    <div class="modal-drag-handle"></div>
+    <button class="mclose" onclick="closeM()">✕</button>
+    <div class="modal-img-wrap" id="mimg-wrap">
+      <div class="modal-emoji-fallback" id="memoji-fb"></div>
+    </div>
+    <div class="modal-photo-credit hidden" id="mphoto-credit"></div>
+    <div class="modal-body">
+      <div class="modal-title" id="mt"></div>
+      <div class="modal-badges" id="mb"></div>
+
+      <!-- Meta row: difficulty + times + allergens -->
+      <div class="modal-meta-row">
+        <div class="meta-block">
+          <div class="meta-label">Difficulty</div>
+          <div class="modal-stars" id="mstars"></div>
+        </div>
+        <div class="meta-block">
+          <div class="meta-label">Prep</div>
+          <div class="meta-val" id="mprep"></div>
+        </div>
+        <div class="meta-block">
+          <div class="meta-label">Cook</div>
+          <div class="meta-val" id="mcook"></div>
+        </div>
+        <div class="meta-block">
+          <div class="meta-label">Total</div>
+          <div class="meta-val" id="mtotal"></div>
+        </div>
+      </div>
+
+      <!-- Allergen tags -->
+      <div class="modal-allergens" id="mallergens"></div>
+
+      <!-- Serving scaler -->
+      <div class="scaler-row">
+        <div class="scaler-label">Ingredients scaled for <strong id="serves-display">4</strong> servings</div>
+        <div class="scaler-btns">
+          <button class="scaler-btn" onclick="scaleServings(-1)">−</button>
+          <div class="scaler-val" id="scaler-val">4</div>
+          <button class="scaler-btn" onclick="scaleServings(1)">+</button>
+        </div>
+      </div>
+
+      <div class="modal-desc" id="md"></div>
+
+      <!-- Equipment -->
+      <div class="msec-label">Equipment needed</div>
+      <div class="equip-row" id="mequip"></div>
+
+      <div class="msec">
+        <div class="msec-label">Ingredients</div>
+        <ul id="mi"></ul>
+      </div>
+      <div class="msec">
+        <div class="msec-label">Method</div>
+        <ol id="ms"></ol>
+      </div>
+
+      <!-- Pairing -->
+      <div class="pairing-box">
+        <div class="pairing-label">🍷 Drink pairing</div>
+        <div class="pairing-val" id="mpairing"></div>
+      </div>
+
+      <div class="mtip" id="mtp"></div>
+
+      <!-- Action bar -->
+      <div class="modal-actions">
+        <button class="action-btn fav-modal-btn" id="fav-modal-btn" onclick="toggleFavModal()">🤍 Save recipe</button>
+        <button class="action-btn" onclick="printRecipe()">🖨️ Print</button>
+        <button class="action-btn" onclick="shareRecipe()">🔗 Share</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FAVOURITES PANEL -->
+<div class="panel-overlay" id="panel-overlay" onclick="closeFavPanel()"></div>
+<div class="fav-panel" id="fav-panel">
+  <div class="fav-panel-header">
+    <div class="fav-panel-title">❤️ Saved recipes</div>
+    <button class="panel-close" onclick="closeFavPanel()">✕</button>
+  </div>
+  <div class="fav-list" id="fav-list"></div>
+</div>
+
+<!-- PRINT AREA -->
+<div id="print-area">
+  <button class="print-close no-print" onclick="closePrint()">✕ Close</button>
+  <div id="print-content"></div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════
+// RECIPE DATA
+// ═══════════════════════════════════════
+// Each recipe has:
+// e=emoji, t=title, lv=level, cu=cuisine, region, cat=category, style,
+// stars=difficulty 1-5, prep=prep time string, cook=cook time, time=total,
+// allergens=array(gf/df/vg/nf), equip=array of equipment strings,
+// pairing=drink suggestion, q=unsplash search query,
+// desc, ing=ingredients array, steps array, tip
+
+const R = [
+  // ── CHINA REGIONS ──
+  {e:"🥟",t:"Har gow (steamed prawn dumplings)",lv:"Advanced",cu:"Cantonese",region:"China Regions",cat:"Snacks & Street Food",style:"Traditional",time:"90 min",prep:"75 min",cook:"8 min",stars:5,allergens:["df"],equip:["Steamer","Cleaver or flat-bottomed glass","Mixing bowls"],pairing:"Oolong tea or Cantonese pu-erh",q:"har gow dim sum steamed dumplings",
+  desc:"The benchmark of any dim sum house. Translucent wheat starch skin, at least 7 pleats per dumpling, and a filling that stays chunky — not a paste.",
+  ing:["150g wheat starch","50g tapioca starch","180ml boiling water","1 tsp lard or vegetable shortening","300g fresh prawns, roughly chopped","60g bamboo shoots, finely diced","1 tsp sesame oil","½ tsp salt","½ tsp sugar","Pinch white pepper"],
+  steps:["Mix wheat starch and tapioca starch. Pour boiling water in and mix immediately with chopsticks. Knead in lard until smooth and pliable. Keep covered with a damp cloth — dries out in seconds.","Combine prawns, bamboo shoots, sesame oil, salt, sugar and pepper. Keep chunky — do not overwork.","Pinch off small portions of dough (~15g). Press flat with a cleaver or glass into a thin round (~8cm).","Place 1 tsp filling in centre. Pleat the front edge 7–9 times, pressing to seal.","Steam on lightly oiled parchment paper over high heat for 7–8 min until skin is translucent."],
+  tip:"Wheat starch dough dries in seconds — keep it covered and work one wrapper at a time, as fast as you can."},
+
+  {e:"🫕",t:"Mapo tofu (麻婆豆腐)",lv:"Moderate",cu:"Sichuan",region:"China Regions",cat:"Vegetarian",style:"Traditional",time:"25 min",prep:"10 min",cook:"15 min",stars:3,allergens:["df","gf"],equip:["Wok","Mortar and pestle"],pairing:"Cold Tsingtao beer or Sichuan baijiu (diluted)",q:"mapo tofu sichuan chinese food",
+  desc:"Chengdu's most famous dish. The mala (numbing-spicy) sensation from doubanjiang and Sichuan peppercorn is a completely unique flavour experience.",
+  ing:["400g soft tofu, cut into 2cm cubes","150g pork mince (omit for vegetarian)","2 tbsp doubanjiang (spicy fermented bean paste)","1 tbsp fermented black beans, chopped","3 garlic cloves, minced","1 tsp ginger, minced","1 cup chicken or vegetable stock","1 tsp Sichuan peppercorns, toasted and ground","1 tbsp cornflour mixed with 2 tbsp water","Chilli oil and spring onion to serve"],
+  steps:["Heat oil in wok until very hot. Fry doubanjiang 2 min until oil turns deep red. Add black beans, garlic and ginger — stir 30 sec.","Add pork mince if using. Break up and cook through.","Pour in stock. Bring to a gentle simmer.","Carefully slide in tofu cubes. Simmer 5 min without stirring — tofu breaks easily.","Stir in cornflour slurry to thicken the sauce.","Finish with ground Sichuan pepper and a drizzle of chilli oil. Top with spring onion."],
+  tip:"The Sichuan peppercorn must go in at the very end off the heat — cooking it kills the numbing tingle that defines this dish."},
+
+  {e:"🍲",t:"Dongpo pork (东坡肉)",lv:"Advanced",cu:"Shanghainese",region:"China Regions",cat:"Meat",style:"Traditional",time:"3 hrs",prep:"20 min",cook:"2.5 hrs",stars:4,allergens:["df"],equip:["Heavy lidded pot or Dutch oven","Kitchen twine"],pairing:"Shaoxing rice wine or dry Riesling",q:"dongpo pork belly braised chinese",
+  desc:"Named after the poet Su Dongpo, this Hangzhou classic slow-braises pork belly in shaoxing wine until it trembles like soft jelly.",
+  ing:["800g pork belly, skin-on, cut into 6cm cubes","4 tbsp light soy sauce","4 tbsp dark soy sauce","4 tbsp shaoxing rice wine","2 tbsp rock sugar","3 stalks spring onion","4 slices ginger","Blanched bok choy to serve"],
+  steps:["Blanch pork belly in boiling water 5 min. Drain and rinse. Tie each cube firmly with kitchen twine to hold its shape.","Line the bottom of the pot with spring onion and ginger. Place pork cubes skin-side down on top.","Add soy sauces, shaoxing wine and rock sugar. Bring to a boil.","Cover tightly. Reduce to the lowest possible heat. Cook 2.5 hrs — do not lift the lid.","Flip pork skin-side up. Increase heat to reduce sauce until thick and glossy.","Serve skin-side up over blanched bok choy with white rice."],
+  tip:"The absolute lowest heat for the longest time is the entire point. High heat renders the pork tough and greasy instead of trembling."},
+
+  {e:"🍜",t:"Dan dan noodles (担担面)",lv:"Moderate",cu:"Sichuan",region:"China Regions",cat:"Pasta & Noodles",style:"Street Food",time:"30 min",prep:"15 min",cook:"15 min",stars:3,allergens:["df"],equip:["Wok","Saucepan"],pairing:"Ice-cold jasmine tea or light lager",q:"dan dan noodles sichuan street food",
+  desc:"Chengdu street noodles named after the pole used to carry them through alleys. A cold complex sauce over hot noodles — the contrast is the technique.",
+  ing:["200g thin wheat noodles","2 tbsp sesame paste (tahini)","1 tbsp doubanjiang","1 tbsp soy sauce","1 tbsp chilli oil","1 tsp ground Sichuan peppercorn","1 tsp sugar","1 tbsp Chinese black vinegar","2 garlic cloves, minced","1 tsp ginger, grated","100g pork mince","2 tbsp ya cai (Yibin preserved vegetables)","Spring onion and crushed peanuts"],
+  steps:["Mix all sauce ingredients in a bowl. Loosen with 2–3 tbsp hot noodle cooking water. Taste — should be nutty, spicy, tangy.","Fry pork mince in oil until crispy. Add ya cai and fry 1 more min until fragrant.","Cook noodles in boiling water. Drain — save a little water to thin sauce if needed.","Divide sauce between serving bowls. Place hot noodles on top.","Top with crispy pork mince, ya cai, spring onion and crushed peanuts. Toss before eating."],
+  tip:"Build the sauce cold in the bowl — hot noodles arriving on top of it creates the intended temperature contrast. Never heat the sauce."},
+
+  {e:"🥩",t:"Peking duck (北京烤鸭)",lv:"Advanced",cu:"Cantonese",region:"China Regions",cat:"Meat",style:"Traditional",time:"2 days",prep:"30 min",cook:"70 min",stars:5,allergens:["df"],equip:["Roasting rack","Pastry brush","Basting brush"],pairing:"Tsingtao beer or Baijiu highball",q:"peking duck roasted whole beijing",
+  desc:"China's most celebrated banquet dish. The overnight drying and maltose lacquer creates the shattering amber skin the world knows.",
+  ing:["1 whole duck (~2kg)","Maltose glaze: 2 tbsp maltose + 1 tbsp shaoxing wine + 1 tbsp white vinegar + 1 tbsp warm water","1 tsp five-spice powder","3 garlic cloves, smashed","3 spring onions","Mandarin pancakes (store-bought)","Hoisin sauce, cucumber julienned, spring onion julienned"],
+  steps:["Blanch duck by pouring boiling water all over the skin to tighten it. Pat completely dry. Rub cavity with five-spice. Stuff with garlic and spring onion.","Hang on a rack over a tray or prop on a rack in the fridge. Leave UNCOVERED overnight minimum — 24 hrs is better. Skin must be bone dry.","Next day: heat maltose glaze. Brush duck all over. Air-dry 30 min. Brush again.","Roast at 200°C for 60–70 min. Rotate once for even browning. Baste with remaining glaze in final 10 min.","Rest 10 min. Carve skin separately in pieces — the crispy skin served in pancakes with hoisin is the centrepiece."],
+  tip:"Any moisture on the skin = steamed not lacquered. The overnight drying step is the most important thing you can do."},
+
+  {e:"🐟",t:"Teochew steamed fish",lv:"Beginner",cu:"Teochew",region:"China Regions",cat:"Seafood",style:"Traditional",time:"20 min",prep:"5 min",cook:"12 min",stars:1,allergens:["df","gf"],equip:["Steamer or large wok with lid","Heatproof plate"],pairing:"Light dry white wine or hot Oolong tea",q:"steamed whole fish chinese ginger soy",
+  desc:"The Teochew philosophy in one dish — clean, pure, letting the fish speak entirely for itself. Revered across the Teochew diaspora of Southeast Asia.",
+  ing:["1 whole sea bass or grouper (~500g), scaled and gutted","3 slices fresh ginger","2 stalks spring onion","2 tbsp light soy sauce","1 tbsp shaoxing wine","1 tsp sesame oil","1 tbsp neutral oil (to heat until smoking)","Fresh coriander to garnish"],
+  steps:["Score the fish three times each side. Season lightly with salt. Stuff cavity with ginger and spring onion.","Place on a heatproof plate. Drizzle shaoxing wine and half the soy sauce over.","Steam over high heat 8–10 min depending on thickness. Do not overcook.","Discard any liquid from the plate — it's fishy and bitter. Pour fresh soy sauce over.","Heat oil in a small pan until smoking. Pour over the spring onion and ginger on the fish immediately — it sizzles and blooms the aromatics instantly.","Garnish with coriander. Serve immediately."],
+  tip:"The sizzle of hot oil poured over the aromatics is the dish — that sound is the flavour being released in one second. Serve within 30 seconds."},
+
+  {e:"🥟",t:"Siu mai (烧卖)",lv:"Moderate",cu:"Cantonese",region:"China Regions",cat:"Snacks & Street Food",style:"Traditional",time:"60 min",prep:"45 min",cook:"12 min",stars:3,allergens:["df"],equip:["Steamer","Mixing bowls"],pairing:"Pu-erh tea or Cantonese chrysanthemum tea",q:"siu mai dim sum pork prawn dumpling",
+  desc:"Dim sum's open-top dumpling — pork and prawn filling visible through the wrapper top, always topped with a dot of orange roe. A teahouse staple.",
+  ing:["250g pork mince (not too lean)","150g fresh prawns, roughly chopped — not minced","50g water chestnuts, finely diced","1 tsp ginger, grated","1 tbsp oyster sauce","1 tsp soy sauce","1 tsp sesame oil","2 tsp cornflour","Round wonton wrappers","Tobiko or diced carrot for topping"],
+  steps:["Combine all filling ingredients. Mix until sticky and slightly elastic — it should hold together when squeezed.","Place a wrapper on your palm. Add a heaped teaspoon of filling in the centre.","Gather the wrapper up around the filling forming a cylinder, pleating as you go. Leave the top open and flat.","Gently press the filling down with a wet finger to flatten the top. Add a dot of tobiko or carrot.","Steam on lightly oiled parchment over high heat 10–12 min until filling is cooked through."],
+  tip:"Roughly chopped prawns (not minced) give the essential contrasting chunkiness against the smooth pork. That texture difference is non-negotiable."},
+
+  {e:"🫕",t:"Hakka braised pork (梅菜扣肉)",lv:"Moderate",cu:"Hakka",region:"China Regions",cat:"Meat",style:"Home-style",time:"90 min",prep:"20 min",cook:"70 min",stars:3,allergens:["df"],equip:["Heatproof bowl","Steamer","Heavy pan"],pairing:"Light Chinese Huangjiu (yellow rice wine) or a malty ale",q:"chinese braised pork belly steamed preserved mustard greens",
+  desc:"Mei cai kou rou — Hakka home cooking at its finest. Pork belly steamed over tangy preserved mustard greens until the two become inseparable.",
+  ing:["600g pork belly, skin-on","150g mei cai (preserved mustard greens), soaked, rinsed and roughly chopped","3 tbsp light soy sauce","2 tbsp dark soy sauce","2 tbsp shaoxing wine","1 tbsp sugar","3 garlic cloves, minced","2 slices ginger"],
+  steps:["Blanch pork belly in boiling water 10 min. Drain. Rub skin with dark soy sauce while still warm.","Fry pork belly skin-side down in oil over medium-high heat until skin is deep brown and slightly blistered. Cool, then slice into 1cm pieces.","Arrange slices skin-side down in a heatproof bowl.","In the same pan, fry mei cai with garlic, ginger, soy sauce, wine and sugar until fragrant and well-coated. Layer evenly on top of pork.","Steam bowl over high heat for 60 min, topping up water as needed.","Invert onto a serving plate — the pork skin is now on top, mahogany-coloured and gleaming."],
+  tip:"The inversion at the end is the reveal — the skin should be so soft you can cut it with a spoon. If it resists, steam for longer."},
+
+  {e:"🍜",t:"Teochew fish ball noodle soup",lv:"Moderate",cu:"Teochew",region:"China Regions",cat:"Pasta & Noodles",style:"Street Food",time:"45 min",prep:"25 min",cook:"20 min",stars:3,allergens:["df","gf"],equip:["Food processor or blender","Saucepan"],pairing:"Chrysanthemum tea or cold barley water",q:"fish ball noodle soup asian street food",
+  desc:"The hawker bowl of Singapore's Teochew community. Handmade fish balls that bounce — the texture that proves the paste was worked correctly.",
+  ing:["400g fresh wolf herring or yellowtail, blended to a smooth, sticky paste with ½ tsp salt","Yellow noodles or rice vermicelli","Clear pork and fish bone broth (or quality store-bought)","Fish cake, sliced","Bok choy","Sambal, fried shallots, spring onion, white pepper"],
+  steps:["Blend fish with salt until the paste is extremely sticky and elastic — this takes 3–5 min of blending. If it doesn't stretch, blend more.","Wet your hands. Scoop paste with a tablespoon. Form into balls by squeezing through your fist. Drop into cold water.","Bring a pot of lightly salted water to a gentle boil. Simmer fish balls until they float + 2 min. Remove.","Bring broth to boil. Season with fish sauce and white pepper.","Blanch noodles and bok choy. Bowl: noodles, hot broth, fish balls, fish cake, bok choy. Top with sambal and fried shallots."],
+  tip:"The paste must be worked until it stretches without breaking — that elasticity is what gives fish balls their characteristic bounce. Under-worked paste gives soft, dull balls."},
+
+  // ── EAST ASIA ──
+  {e:"🍜",t:"Tonkotsu ramen from scratch",lv:"Advanced",cu:"Japanese",region:"East Asia",cat:"Soups & Stews",style:"Traditional",time:"7 hrs",prep:"30 min",cook:"6.5 hrs",stars:5,allergens:["df"],equip:["Large stockpot","Fine mesh strainer","Tongs"],pairing:"Japanese lager (Sapporo or Asahi) or mugicha",q:"tonkotsu ramen broth bowl japanese",
+  desc:"Fukuoka's defining broth — hours of boiling pork bones at a rolling boil creates the milky, collagen-rich soup that makes tonkotsu unlike any other ramen.",
+  ing:["1kg pork trotters or neck bones","1 onion, halved","4cm ginger, smashed","4 garlic cloves","3 spring onion stalks","Tare: 4 tbsp soy sauce + 2 tbsp mirin + 1 tbsp sake, simmered 5 min","Toppings: chashu pork belly, marinated soft-boiled egg, nori, corn, bamboo shoots","Fresh thin ramen noodles"],
+  steps:["Blanch bones in boiling water 10 min. Drain completely. Scrub each bone under cold water.","Char halved onion and ginger directly over a gas flame until blackened and fragrant.","Combine cleaned bones, charred aromatics, garlic and spring onion in a large pot with 4L cold water.","Bring to a ROLLING boil — not a simmer. Maintain this for 4–6 hrs. Top up water as needed. Skim foam in first hour only.","Strain broth through fine mesh. It should be milky white and slightly thick.","Season each bowl with tare (start with 2 tbsp per bowl). Ladle broth over noodles and toppings."],
+  tip:"A rolling boil (not a simmer) is what creates the milky emulsification. A gentle simmer gives clear soup — an entirely different result."},
+
+  {e:"🍱",t:"Japanese curry (Karē raisu)",lv:"Moderate",cu:"Japanese",region:"East Asia",cat:"Soups & Stews",style:"Traditional",time:"50 min",prep:"15 min",cook:"35 min",stars:2,allergens:["df"],equip:["Heavy-bottomed pot","Wooden spoon"],pairing:"Cold milk or a light Japanese lager",q:"japanese curry rice katsu",
+  desc:"Mild, sweet and deeply comforting. Store-bought roux blocks make this achievable — the skill is in properly caramelising the onion.",
+  ing:["400g chicken thigh, diced into 3cm pieces","2 potatoes, cubed","2 carrots, cubed","1 large onion, thinly sliced","2 cubes S&B Golden curry roux","2 cups chicken stock","1 tbsp neutral oil"],
+  steps:["Heat oil in a heavy pot. Brown chicken pieces until golden on all sides. Remove and set aside.","Add onion to the same pot. Cook on LOW heat 8–10 min, stirring occasionally, until deeply golden and caramelised. Do not rush this.","Add carrot and potato. Stir to coat. Return chicken. Add stock. Bring to boil, skimming any foam.","Simmer uncovered 20 min until vegetables are tender.","Remove from heat. Break curry roux blocks into the liquid. Stir until completely dissolved.","Return to low heat 5 min until sauce thickens. Serve over steamed white rice."],
+  tip:"The caramelised onion is the source of Japanese curry's distinctive sweetness. Rushing this step flattens the entire flavour."},
+
+  {e:"🍣",t:"Chirashi sushi",lv:"Moderate",cu:"Japanese",region:"East Asia",cat:"Seafood",style:"Traditional",time:"40 min",prep:"20 min",cook:"20 min",stars:3,allergens:["gf","df"],equip:["Rice cooker or pot","Wide wooden bowl (hangiri)","Rice paddle"],pairing:"Cold sake (junmai) or dry sparkling water with yuzu",q:"chirashi sushi bowl sashimi japanese",
+  desc:"Scattered sushi — sashimi-grade fish arranged over perfectly seasoned rice. Beautiful, forgiving, and no rolling technique required.",
+  ing:["2 cups Japanese short-grain rice","4 tbsp rice vinegar","2 tbsp sugar","1 tsp salt","Sashimi-grade salmon and tuna (100g each), sliced thin","Tamago (Japanese sweet egg omelette), sliced","Edamame, cucumber, avocado","Nori strips, sesame seeds, pickled ginger","Soy sauce and wasabi to serve"],
+  steps:["Cook rice. Dissolve rice vinegar, sugar and salt in a small bowl until clear.","Transfer hot rice to a wide bowl. Fold in the sushi vinegar with a rice paddle using cutting motions — not stirring.","Fan the rice while folding to cool quickly. It should be glossy, separate and at room temperature.","Spread rice in serving bowl or flat dish.","Arrange sashimi, tamago, cucumber and edamame artfully on top. Scatter nori, sesame seeds and pickled ginger.","Serve immediately with soy sauce and wasabi on the side."],
+  tip:"Season the rice while it's still hot and cool it quickly — rice left to cool slowly turns dense, starchy and sticky in the wrong way."},
+
+  {e:"🍜",t:"Sundubu jjigae (soft tofu stew)",lv:"Moderate",cu:"Korean",region:"East Asia",cat:"Soups & Stews",style:"Traditional",time:"25 min",prep:"10 min",cook:"15 min",stars:2,allergens:["df","gf"],equip:["Stone pot (dolsot) or heavy saucepan"],pairing:"Korean makgeolli (rice wine) or barley tea",q:"sundubu jjigae korean soft tofu stew",
+  desc:"Silky tofu in a fiery, deeply savoury Korean broth. Teaches how to build the complex layered umami base of Korean cooking.",
+  ing:["1 tube (350g) silken tofu","200g pork belly, thinly sliced (or clams)","2 tbsp gochugaru (Korean chilli flakes)","1 tbsp doenjang (fermented soybean paste)","3 cups anchovy or chicken stock","3 garlic cloves, minced","1 tsp sesame oil","1 raw egg","Spring onion to serve"],
+  steps:["Heat oil in pot over medium-high. Fry gochugaru and garlic 30 sec until fragrant and oil turns red.","Add pork belly. Stir briefly until edges begin to colour.","Pour in stock. Add doenjang. Bring to a boil, cook 5 min.","Add silken tofu in large spoonfuls directly from the tube — do not stir. Leave it whole.","Simmer 5 min. Crack the raw egg in. Cover 1 min.","Drizzle sesame oil. Serve bubbling in the pot with spring onion on top."],
+  tip:"Silken tofu shatters if stirred. Add in large chunks and leave completely alone — the heat does the work."},
+
+  {e:"🍖",t:"Galbi jjim (braised short ribs)",lv:"Moderate",cu:"Korean",region:"East Asia",cat:"Meat",style:"Traditional",time:"2.5 hrs",prep:"40 min",cook:"2 hrs",stars:3,allergens:["df","gf"],equip:["Large heavy pot or Dutch oven"],pairing:"Korean makgeolli or a robust Shiraz",q:"korean braised beef short ribs galbi jjim",
+  desc:"A centrepiece Korean braise — beef short ribs in a sweet-savoury sauce of soy, Asian pear and sesame, cooked until fall-apart tender.",
+  ing:["1kg beef short ribs, cut through bone","1 Asian pear, grated","½ onion, grated","6 garlic cloves, minced","4 tbsp soy sauce","2 tbsp brown sugar","1 tbsp sesame oil","1 tbsp mirin","Carrots and chestnuts (optional)","Spring onion and sesame seeds to serve"],
+  steps:["Soak ribs in cold water 1 hr to draw out blood. Drain. Blanch in boiling water 5 min. Rinse thoroughly under cold water.","Combine grated pear, onion, garlic, soy sauce, sugar, sesame oil and mirin into a marinade. Toss ribs to coat. Rest 30 min.","Transfer to a large pot. Cover with water by 2cm. Bring to a boil. Skim foam.","Cover and simmer on low heat 1.5 hrs. Add carrots and chestnuts if using. Continue 30 min more.","Uncover. Increase heat slightly to reduce sauce to a thick, glossy glaze. Serve with rice, sesame seeds and spring onion."],
+  tip:"Grated Asian pear contains enzymes that break down muscle fibres — Korea's original natural meat tenderiser. Kiwi works as a substitute."},
+
+  {e:"🥟",t:"Gyoza (pan-fried dumplings)",lv:"Moderate",cu:"Japanese",region:"East Asia",cat:"Snacks & Street Food",style:"Traditional",time:"45 min",prep:"35 min",cook:"10 min",stars:3,allergens:["df"],equip:["Non-stick frying pan with lid","Mixing bowls"],pairing:"Cold Japanese beer or rice vinegar-soy dipping sauce with umeshu",q:"gyoza pan fried japanese dumplings",
+  desc:"The art of pleating dumplings and steam-frying them to a crispy-bottomed perfection. Meditative once you get the rhythm.",
+  ing:["250g pork mince","1 cup napa cabbage, finely shredded","2 garlic cloves, minced","1 tsp ginger, grated","1 tbsp soy sauce","1 tsp sesame oil","1 tsp mirin","20 round gyoza wrappers","Dipping sauce: 2 tbsp soy + 1 tbsp rice vinegar + chilli oil"],
+  steps:["Salt the shredded cabbage and rest 10 min. Squeeze out ALL water — squeeze hard, twice.","Mix cabbage with pork, garlic, ginger, soy, sesame oil and mirin until sticky. The filling must be dry.","Place a small amount of filling in the centre of each wrapper. Fold in half and pleat the front edge 5–6 times, pressing to seal firmly.","Heat oil in a non-stick pan over medium heat. Arrange gyoza flat-side down. Cook until bottoms are golden (~2 min).","Add 3 tbsp water to the pan. Cover immediately. Steam 3 min.","Remove lid. Let remaining water evaporate completely. Slide out, serve crispy-side up with dipping sauce."],
+  tip:"Every drop of water must be squeezed from the cabbage. Even a little moisture means soggy, burst gyoza every time."},
+
+  {e:"🫔",t:"Bánh mì",lv:"Beginner",cu:"Vietnamese",region:"East Asia",cat:"Snacks & Street Food",style:"Fusion",time:"15 min",prep:"10 min",cook:"5 min",stars:1,allergens:["df"],equip:["Frying pan"],pairing:"Vietnamese iced coffee or cold soda chanh (lime soda)",q:"banh mi vietnamese sandwich baguette",
+  desc:"Vietnam's legendary baguette sandwich — French colonial history transformed into something entirely Vietnamese and extraordinary.",
+  ing:["1 Vietnamese baguette or demi-baguette (crispy thin crust)","2 tbsp pâté","2 tbsp mayonnaise","200g pork belly, sliced thin","Pickled daikon and carrot (mua chua)","Half a cucumber, thinly sliced","Fresh coriander sprigs","Sliced red chilli","Maggi seasoning or soy sauce"],
+  steps:["Fry pork belly slices in a dry pan until lightly caramelised at the edges.","Split baguette lengthwise. Spread pâté on one side, mayonnaise on the other.","Layer pork slices, pickled daikon and carrot, cucumber, coriander and chilli.","Drizzle Maggi seasoning inside. Press together and serve immediately."],
+  tip:"Every single element must be present — the whole point is the contrast between flaky crust, rich pâté, tangy pickles and bright herbs."},
+
+  {e:"🍲",t:"Phở bò (beef pho)",lv:"Moderate",cu:"Vietnamese",region:"East Asia",cat:"Soups & Stews",style:"Traditional",time:"3.5 hrs",prep:"20 min",cook:"3 hrs",stars:3,allergens:["df","gf"],equip:["Large stockpot","Fine mesh strainer","Gas burner or open flame"],pairing:"Cold Vietnamese green tea or jasmine iced tea",q:"pho bo vietnamese beef noodle soup",
+  desc:"Vietnam's national soup. The clear charred-ginger broth built over hours is an exercise in patience and restraint.",
+  ing:["1kg beef bones (knuckle + marrow)","500g beef brisket","1 large onion, halved","5cm piece ginger","3 star anise","3 whole cloves","1 cinnamon stick","3 tbsp fish sauce","1 tbsp rock sugar","Salt to taste","Flat rice noodles","Garnish: bean sprouts, Thai basil, lime wedges, hoisin sauce, sriracha"],
+  steps:["Blanch bones and brisket in boiling water 10 min. Drain completely. Rinse bones under cold running water until clean.","Char the onion halves and ginger directly over a gas flame, turning, until blackened and fragrant — about 5 min each.","Combine cleaned bones, charred onion, charred ginger, star anise, cloves and cinnamon in a large pot with 4L cold water. Bring to a gentle boil.","Simmer 2.5 hrs, skimming foam regularly. Add brisket in the last 45 min.","Remove brisket when tender. Slice thin against the grain when cool.","Strain broth. Season with fish sauce, rock sugar and salt. Broth should taste complex but not salty.","Bowl: rice noodles, brisket slices, pour hot broth over. Add garnishes tableside."],
+  tip:"Charring the onion and ginger over a direct flame is the most important step — it creates the smoky-sweet character that defines pho and cannot be replicated any other way."},
+
+  {e:"🍱",t:"Filipino adobo",lv:"Beginner",cu:"Filipino",region:"East Asia",cat:"Meat",style:"Traditional",time:"50 min",prep:"15 min",cook:"35 min",stars:1,allergens:["df","gf"],equip:["Heavy pot or Dutch oven"],pairing:"San Miguel Pale Pilsen or calamansi juice on the rocks",q:"filipino chicken pork adobo vinegar soy",
+  desc:"The Philippines' defining dish — braised in vinegar, soy and garlic. Tastes better the next day and keeps for days without refrigeration.",
+  ing:["500g chicken thighs","300g pork belly, cubed","½ cup cane vinegar (or white vinegar)","⅓ cup soy sauce","1 whole head garlic, cloves crushed","3 bay leaves","1 tsp whole black peppercorns","1 tbsp sugar","2 tbsp neutral oil"],
+  steps:["Combine chicken, pork, vinegar, soy sauce, garlic, bay leaves and peppercorns in a heavy pot. Do not add oil yet.","Marinate at room temperature 15 min.","Place over high heat and bring to a boil — do NOT cover yet. Let it boil vigorously for 10 min. This cooks off the harsh acidity of the vinegar.","Reduce to medium-low. Cover and simmer 25 min until meat is tender.","Uncover. Increase heat to reduce and caramelise the sauce until thick.","Optional: remove meat and pan-fry in the oil until edges are crispy. Pour sauce back over."],
+  tip:"Never cover when first boiling the vinegar — the sharp raw acid must cook off before you cover or the finished dish will taste harsh."},
+
+  {e:"🫕",t:"Sinigang na baboy",lv:"Moderate",cu:"Filipino",region:"East Asia",cat:"Soups & Stews",style:"Traditional",time:"60 min",prep:"15 min",cook:"45 min",stars:2,allergens:["df","gf"],equip:["Large pot"],pairing:"Cold buko juice (young coconut) or cold water with calamansi",q:"sinigang filipino sour pork soup tamarind",
+  desc:"The Philippines' great sour tamarind soup — pleasantly, addictively tangy. One of Southeast Asia's truly essential soups.",
+  ing:["600g pork ribs or pork belly","1.2L water","100g fresh tamarind pulp (or 3 tbsp tamarind paste)","1 onion, quartered","3 tomatoes, quartered","2 long green chillies","200g daikon, cubed","200g eggplant, cubed","100g long beans, cut","Kangkong (water spinach), large handful","3 tbsp fish sauce"],
+  steps:["Place pork in pot with water, onion and tomatoes. Bring to boil. Skim foam. Simmer 35–40 min until pork is tender.","Dissolve tamarind pulp in ½ cup of the hot broth. Strain and add the tamarind liquid back to the pot.","Taste the broth — should be pleasantly sour with a savoury depth. Add fish sauce and more tamarind to your taste.","Add daikon and eggplant. Cook 8 min. Add long beans, cook 3 more min.","Add kangkong in the very last minute — it wilts almost immediately.","Serve with steamed rice. The broth is drunk alongside."],
+  tip:"Sinigang is defined by its sour — it should make your mouth water involuntarily. Add tamarind gradually and trust your palate."},
+
+  {e:"🍜",t:"Pad Thai",lv:"Moderate",cu:"Thai",region:"East Asia",cat:"Pasta & Noodles",style:"Traditional",time:"30 min",prep:"20 min",cook:"10 min",stars:2,allergens:["gf","df"],equip:["Wok","Mixing bowl"],pairing:"Singha beer or cold Thai iced tea",q:"pad thai noodles prawns thai food",
+  desc:"Thailand's iconic noodle dish. Requires managing wok heat, sauce balance and timing all simultaneously.",
+  ing:["200g rice noodles (soaked in warm water 20 min)","200g medium prawns or firm tofu, pressed and cubed","2 large eggs","3 tbsp fish sauce","2 tbsp tamarind paste","1 tbsp palm sugar (or brown sugar)","Bean sprouts","4 spring onions, cut into batons","Crushed roasted peanuts","Lime wedges, dried chilli flakes"],
+  steps:["Mix sauce: whisk fish sauce, tamarind paste and palm sugar together. Taste — it should be tangy, savoury and very slightly sweet. Adjust.","Heat wok over highest heat. Add oil. Fry prawns or tofu until just cooked. Push to side or remove.","Add soaked, drained noodles. Pour sauce over. Toss on high heat 2 min until noodles absorb the sauce.","Push noodles to one side. Crack eggs into the empty space. Scramble until just set. Fold into noodles.","Add bean sprouts and spring onion. Toss briefly — 30 sec. Serve with peanuts, lime and chilli flakes."],
+  tip:"Build and balance the sauce cold in a bowl first. Adjusting flavour in a screaming hot wok is nearly impossible."},
+
+  {e:"🥗",t:"Larb moo (Laotian pork salad)",lv:"Beginner",cu:"Laotian",region:"East Asia",cat:"Meat",style:"Traditional",time:"20 min",prep:"10 min",cook:"10 min",stars:1,allergens:["df","gf"],equip:["Dry frying pan","Mortar and pestle or spice grinder"],pairing:"Cold Beer Lao or fresh limeade",q:"laotian larb minced pork salad lime herbs",
+  desc:"Laos's national dish — warm minced pork with toasted rice powder, lime and fresh herbs. Intensely herbaceous, refreshing and light.",
+  ing:["300g pork mince","3 tbsp toasted rice powder (dry-fry raw rice until golden, then grind)","3 tbsp fresh lime juice","2 tbsp fish sauce","1 tbsp palm sugar","4 shallots, thinly sliced","Large handful each: mint, coriander, spring onion","1 tsp dried chilli flakes","Sticky rice to serve"],
+  steps:["Dry-fry raw jasmine rice in a pan over medium heat, stirring constantly until golden and fragrant. Grind in a mortar to a coarse powder.","Cook pork mince in a pan with 2 tbsp water — no oil. Break up finely. Cook until just done.","Remove from heat immediately. Add lime juice, fish sauce and sugar. Toss to combine.","Add sliced shallots, mint, coriander, spring onion, toasted rice powder and chilli flakes.","Toss everything together. Taste — adjust lime, fish sauce, chilli. Serve warm with sticky rice."],
+  tip:"Toasted rice powder is the soul of larb — it absorbs the juices and adds a nutty, grainy texture that makes this dish what it is. Never skip it."},
+
+  {e:"🫕",t:"Khao soi (Northern Thai curry noodle)",lv:"Moderate",cu:"Thai",region:"East Asia",cat:"Pasta & Noodles",style:"Regional",time:"50 min",prep:"20 min",cook:"30 min",stars:3,allergens:["gf"],equip:["Wok","Deep frying pan"],pairing:"Singha lager or fresh coconut water with lime",q:"khao soi thai curry noodle soup chiang mai",
+  desc:"Chiang Mai's extraordinary bowl — a coconut curry broth of Burmese origin, with both soft and crispy noodles in one serving.",
+  ing:["4 chicken thighs, bone-in","2 cups full-fat coconut milk","1 cup chicken stock","3 tbsp red curry paste","1 tsp curry powder","1 tbsp palm sugar","2 tbsp fish sauce","Egg noodles (divide: half for boiling, half for deep-frying crispy)","To serve: pickled mustard greens, crispy shallots, lime, chilli oil"],
+  steps:["Deep-fry a portion of egg noodles in hot oil until crispy and golden. Drain on paper. Set aside.","In a wok, fry curry paste and curry powder in 2 tbsp oil 2 min until very fragrant.","Add coconut milk. Bring to a simmer, stirring.","Add stock and chicken thighs. Simmer 25 min until chicken is cooked through. Remove and shred.","Season broth with fish sauce and palm sugar.","Boil remaining egg noodles. Bowl: soft noodles, broth, shredded chicken. Top with crispy noodles, pickled mustard greens, shallots, lime and chilli oil."],
+  tip:"The crispy noodles on top are not a garnish — they soften slowly in the broth as you eat, creating a textural journey throughout the meal."},
+
+  {e:"🍛",t:"Nasi lemak",lv:"Moderate",cu:"Malaysian",region:"East Asia",cat:"Rice",style:"Traditional",time:"45 min",prep:"20 min",cook:"25 min",stars:2,allergens:["df","gf"],equip:["Rice cooker","Blender or food processor","Wok"],pairing:"Teh tarik (pulled milk tea) or barley water",q:"nasi lemak malaysian coconut rice sambal",
+  desc:"Malaysia and Singapore's most beloved breakfast — fragrant coconut pandan rice with sambal, crispy anchovies and egg.",
+  ing:["2 cups jasmine rice","1 cup coconut milk + water to fill","2 pandan leaves, knotted","1 tsp salt","Sambal: 15 dried chillies (soaked), 6 shallots, 4 garlic, 1 tsp belacan — blended","2 tbsp tamarind paste, 2 tbsp sugar, 1 tbsp oil (for sambal)","100g ikan bilis (dried anchovies)","3 hard-boiled eggs, halved","Half a cucumber, sliced"],
+  steps:["Rinse rice. Add to rice cooker with coconut milk, pandan leaves, salt and enough water to reach the 2-cup line. Cook normally.","Fry ikan bilis in oil until golden and crispy. Drain on paper towel.","Sambal: fry blended paste in oil over medium heat, stirring constantly for 15–20 min until very dark, fragrant and jammy.","Add tamarind paste and sugar to sambal. Cook 2 more min. Season.","Plate coconut rice. Arrange sambal, ikan bilis, eggs and cucumber alongside."],
+  tip:"Good sambal must be fried until almost black and jam-like — pale orange sambal is undercooked and tastes raw and sharp."},
+
+  {e:"🥘",t:"Rendang daging",lv:"Advanced",cu:"Malaysian",region:"East Asia",cat:"Meat",style:"Traditional",time:"3 hrs",prep:"30 min",cook:"2.5 hrs",stars:4,allergens:["df","gf"],equip:["Large wok or wide heavy pot","Blender","Wooden spoon"],pairing:"Teh tarik or young coconut water",q:"rendang daging beef malaysian dry curry",
+  desc:"Malaysia's most celebrated curry — beef cooked until every drop of coconut milk has reduced and the meat fries in its own coconut fat. Extraordinary patience required.",
+  ing:["800g beef chuck or short rib, cubed","2 cans (800ml) full-fat coconut milk","Rempah paste: 8 dried chillies (soaked), 2 lemongrass stalks, 4 shallots, 3 garlic cloves, 2cm galangal, 2cm ginger — all blended fine","5 kaffir lime leaves, bruised","2 tbsp kerisik (toasted desiccated coconut, dry-fried until dark golden)","Salt and palm sugar to taste"],
+  steps:["Fry blended rempah paste in 3 tbsp oil over medium heat, stirring constantly, for 10–12 min until paste is deeply fragrant and oil separates from the surface.","Add beef. Stir to coat thoroughly in paste.","Pour in coconut milk. Add kaffir lime leaves. Bring to a boil.","Reduce to a gentle simmer. Cook UNCOVERED, stirring every 15 min for 2+ hours as liquid reduces.","When sauce is very thick and nearly dry, add kerisik. The mixture will begin to fry in coconut fat — stir constantly from this point.","Cook stirring until beef is deeply browned and coated in dark, rich paste. Season with salt and palm sugar."],
+  tip:"The final stage where it fries dry cannot be left unattended — it will burn within minutes. This is where all the flavour concentrates."},
+
+  {e:"🫕",t:"Soto ayam (Indonesian chicken soup)",lv:"Beginner",cu:"Indonesian",region:"East Asia",cat:"Soups & Stews",style:"Traditional",time:"45 min",prep:"15 min",cook:"30 min",stars:1,allergens:["df","gf"],equip:["Large pot","Blender"],pairing:"Sweet cold teh botol or fresh lemongrass tea",q:"soto ayam indonesian chicken soup turmeric",
+  desc:"Indonesia's golden turmeric chicken soup — bright, fragrant and warming. A national comfort food with infinite regional variations.",
+  ing:["1kg chicken pieces (thighs and drumsticks)","1L water","Spice paste: 4 shallots, 3 garlic, 2cm ginger, 2cm fresh turmeric, 2cm galangal, 2 candlenuts, 2 lemongrass stalks — blended","4 kaffir lime leaves","2 Indonesian bay leaves (daun salam)","Fish sauce or salt","Rice vermicelli, hard-boiled eggs, fried shallots, sambal, lime"],
+  steps:["Blend all spice paste ingredients until smooth.","Fry spice paste in 3 tbsp oil over medium heat for 5 min until deeply fragrant.","Add chicken pieces. Stir to coat in paste and cook 3 min.","Add water, kaffir lime and bay leaves. Bring to boil. Simmer 30 min.","Remove chicken. Shred meat from bones. Discard bones.","Season broth with fish sauce. Bowl: rice vermicelli, shredded chicken, broth. Top with fried shallots, sambal and a squeeze of lime."],
+  tip:"Fresh turmeric (not powder) gives a brighter golden colour and earthier flavour — use it when you can find it at Asian grocery stores."},
+
+  {e:"🥗",t:"Gado-gado",lv:"Moderate",cu:"Indonesian",region:"East Asia",cat:"Vegetarian",style:"Traditional",time:"30 min",prep:"20 min",cook:"10 min",stars:2,allergens:["gf","df","vg"],equip:["Blender or food processor","Saucepan"],pairing:"Es jeruk (iced citrus juice) or sweet iced tea",q:"gado gado indonesian peanut sauce salad",
+  desc:"Indonesia's great peanut sauce salad — blanched vegetables, tofu and egg brought together by an addictive spiced peanut sauce.",
+  ing:["200g roasted peanuts, blended into paste","2 tbsp kecap manis (sweet soy)","1 tbsp palm sugar","1 tbsp tamarind paste","1 tsp belacan (shrimp paste), optional","2 red chillies","2 garlic cloves","Warm water to loosen","Blanched: bean sprouts, long beans, cabbage, potato","Cucumber, fried tofu, hard-boiled eggs","Prawn crackers to serve"],
+  steps:["Blend roasted peanuts with chillies and garlic until a paste forms.","Add kecap manis, palm sugar, tamarind and belacan. Blend. Loosen with warm water to a thick, pourable consistency. Taste — adjust sweet/sour/spice.","Blanch vegetables in salted boiling water (keep each vegetable separate — different times).","Arrange blanched veg, cucumber, tofu and halved eggs on a large platter.","Pour peanut sauce generously over everything just before serving. Add prawn crackers alongside."],
+  tip:"The sauce must coat a spoon heavily but still pour slowly — too thick and it clumps, too thin and it slides off everything."},
+
+  {e:"🍜",t:"Pad kra pao (Thai basil pork)",lv:"Beginner",cu:"Thai",region:"East Asia",cat:"Meat",style:"Street Food",time:"12 min",prep:"5 min",cook:"7 min",stars:1,allergens:["df","gf"],equip:["Wok or large frying pan"],pairing:"Iced Thai green tea or Chang beer",q:"pad kra pao thai basil pork stir fry street food",
+  desc:"Thailand's most popular street lunch dish. Explosive flavour in under 15 minutes — the perfect recipe to have in your weeknight rotation.",
+  ing:["300g pork mince","2 tbsp oyster sauce","1 tbsp fish sauce","1 tsp light soy sauce","1 tsp sugar","4 garlic cloves, minced","4–6 bird's eye chillies, minced (adjust to heat preference)","Large handful Thai holy basil","2 tbsp neutral oil","Steamed jasmine rice and a fried egg to serve"],
+  steps:["Heat oil in a wok over the highest possible heat until smoking.","Add garlic and chilli. Fry 30 sec, stirring constantly, until fragrant.","Add pork mince. Stir-fry on high heat, breaking it up, until browned throughout.","Add oyster sauce, fish sauce, soy sauce and sugar. Toss to combine.","Add Thai basil. Toss just until wilted — about 20 seconds. Remove from heat immediately.","Serve over steamed rice with a crispy fried egg on top."],
+  tip:"Thai holy basil (bai krapao) is not the same as Italian or even Thai sweet basil — it has a distinctive anise-clove flavour that transforms when heat-wilted. Seek it out."},
+
+  // ── SOUTHEAST ASIA ──
+  {e:"🌊",t:"Hainanese chicken rice",lv:"Moderate",cu:"Singaporean",region:"East Asia",cat:"Meat",style:"Traditional",time:"70 min",prep:"15 min",cook:"55 min",stars:3,allergens:["df","gf"],equip:["Large deep pot","Rice cooker or saucepan"],pairing:"Chrysanthemum tea or homemade barley water",q:"hainanese chicken rice singapore poached",
+  desc:"Singapore's national dish. Poaching chicken gently in seasoned water and cooking rice in the resulting stock is an elegant, transferable technique.",
+  ing:["1 whole chicken (~1.5kg)","4L water","3 spring onions","4cm ginger, smashed","1 tbsp salt","Rice: 2 cups jasmine rice, chicken fat from stock, 3 garlic cloves, 2 slices ginger","Dipping sauces: ginger-scallion sauce, dark soy, chilli sauce"],
+  steps:["Bring water, spring onions, ginger and salt to a rolling boil. Submerge chicken breast-side down.","Reduce to barely simmering (just occasional bubbles). Poach 40–45 min. Do not boil — it toughens the meat.","Remove chicken immediately and submerge in an ice bath for 10 min. Reserve all the stock.","Skim chicken fat from the surface of stock. Fry rice in chicken fat 2 min with garlic and ginger. Cook rice using chicken stock instead of water.","Chop chicken through the bone. Serve with rice, three sauces and a bowl of stock as soup."],
+  tip:"The ice bath immediately after poaching is what gives Singapore chicken rice its characteristic springy skin with a gelatinous layer just beneath it."},
+
+  // ── MEDITERRANEAN ──
+  {e:"🥘",t:"Paella valenciana",lv:"Moderate",cu:"Spanish",region:"Mediterranean",cat:"Rice",style:"Traditional",time:"60 min",prep:"20 min",cook:"40 min",stars:3,allergens:["df","gf"],equip:["Paella pan (at least 38cm)","Gas burner or outdoor grill"],pairing:"Dry Spanish rosé (Garnacha) or cold Estrella Damm",q:"paella valenciana spanish rice saffron",
+  desc:"Valencia's original paella uses rabbit and chicken — not seafood. The socarrat (the caramelised crispy bottom layer) is the prize.",
+  ing:["2 cups Bomba or Calasparra paella rice","400g chicken pieces (thighs and drumsticks)","300g rabbit pieces","1 can (400g) crushed tomatoes","1L chicken stock, infused with 1 tsp saffron","1 tsp sweet smoked paprika","200g flat green beans (bajoqueta)","150g butter beans","Olive oil, fresh rosemary, lemon"],
+  steps:["Heat olive oil in a large paella pan. Brown chicken and rabbit pieces aggressively in batches until deep golden. Remove.","In the same pan, fry crushed tomatoes until reduced to a thick paste. Add smoked paprika. Stir 1 min.","Return meat. Add rice. Stir to coat every grain in the sofrito.","Pour all the hot saffron stock in at once. Distribute rice evenly. Do NOT stir from this point.","Cook on medium-high 15 min. Reduce to low 5 min to form the socarrat. Add green beans in last 10 min.","Remove from heat. Rest 5 min under a clean cloth. Serve with lemon."],
+  tip:"Once the stock goes in, the paella must never be stirred. Stirring creates starch and turns it into risotto — a completely different dish."},
+
+  {e:"🍝",t:"Cacio e pepe",lv:"Moderate",cu:"Italian",region:"Mediterranean",cat:"Pasta & Noodles",style:"Traditional",time:"20 min",prep:"5 min",cook:"15 min",stars:3,allergens:["vg"],equip:["Large saucepan","Wide frying pan"],pairing:"Dry Frascati (Lazio white wine) or sparkling water with lemon",q:"cacio e pepe pasta rome italian",
+  desc:"Rome's most minimalist pasta — three ingredients. The emulsification of cheese, pepper and starchy pasta water is the entire technique.",
+  ing:["200g tonnarelli or thick spaghetti","100g Pecorino Romano, very finely grated (almost a powder)","50g Parmigiano-Reggiano, very finely grated","2 tsp coarsely ground black pepper (fresh, not pre-ground)","Reserved pasta cooking water"],
+  steps:["Cook pasta in lightly salted water (less salt than usual — the Pecorino is very salty). Reserve 2 full cups of pasta water before draining.","Toast coarsely ground pepper in a dry wide pan for 1 min. Add a generous ladle of pasta water. Swirl.","Add drained pasta to the pepper pan. Toss vigorously. Turn off heat completely.","Begin adding cheese gradually in 3 additions, tossing the pasta constantly and adding splashes of pasta water to keep it loose.","The sauce should look like a cream coating every strand. Serve immediately in warm bowls."],
+  tip:"The pan must be fully off the heat when adding cheese. Even gentle heat causes the proteins to seize and clump. The pasta water and tossing action do the emulsifying."},
+
+  {e:"🫕",t:"Bouillabaisse",lv:"Advanced",cu:"French",region:"Mediterranean",cat:"Seafood",style:"Traditional",time:"3 hrs",prep:"45 min",cook:"2.5 hrs",stars:5,allergens:["df","gf"],equip:["Large stockpot","Fine mesh strainer","Mortar and pestle"],pairing:"Dry Provençal rosé (Bandol) or a crisp white Burgundy",q:"bouillabaisse french seafood stew marseille",
+  desc:"Marseille's legendary saffron fisherman's stew. Building a proper stock from roasted fish bones and flambéed pastis is the foundation.",
+  ing:["Fish stock: 1kg fish bones and heads, 1 fennel bulb, 1 onion, 4 tomatoes, 4 garlic cloves, large pinch saffron, 100ml pastis, thyme, bay, olive oil","Seafood: 400g monkfish (firm), 300g red mullet or sea bream, 500g mussels, 300g large prawns","Rouille: 4 garlic cloves, 1 pinch saffron, 1 egg yolk, 200ml olive oil, 1 tbsp fresh breadcrumbs","Thick sourdough slices, toasted"],
+  steps:["Roast fish bones and vegetables in 200°C oven 20 min until golden. Transfer to pot with pastis, saffron, herbs and 2L water. Simmer 30 min. Strain through fine mesh — discard solids.","Make rouille: pound garlic with saffron to a paste in mortar. Add egg yolk, whisk. Drizzle in olive oil very slowly until thick. Add breadcrumbs. Season.","Bring strained stock to a rolling boil. Add monkfish first (takes 8 min).","Add red mullet (5 min). Add prawns and mussels (3 min — until mussels open).","Serve broth as the first course ladled over toast spread with rouille. Serve fish on a platter as the second."],
+  tip:"Bouillabaisse is traditionally two courses from one pot. The rouille is stirred into the broth by each diner — it thickens and enriches each spoonful."},
+
+  {e:"🥘",t:"Moussaka",lv:"Moderate",cu:"Greek",region:"Mediterranean",cat:"Meat",style:"Traditional",time:"90 min",prep:"30 min",cook:"60 min",stars:3,allergens:[],equip:["Large frying pan","Baking dish","Saucepan"],pairing:"Greek Xinomavro red wine or a robust Syrah",q:"moussaka greek lamb eggplant bechamel",
+  desc:"Greece's great layered bake — spiced lamb, fried aubergine and a thick béchamel. Teaches sauce making, layered assembly and proper resting.",
+  ing:["2 large aubergines, sliced 1cm thick","500g lamb mince","1 can (400g) crushed tomatoes","1 large onion, diced","2 garlic cloves","1 tsp ground cinnamon","½ tsp allspice","1 tsp dried oregano","Béchamel: 50g butter, 50g plain flour, 500ml warm milk, nutmeg, 2 egg yolks, 50g Parmesan"],
+  steps:["Salt aubergine slices. Rest 30 min. Rinse and pat very dry. Fry in olive oil until golden on both sides. Set aside on paper towel.","Fry onion until soft. Add lamb mince, breaking it up. Season with cinnamon, allspice and oregano. Add tomatoes and garlic. Simmer 20 min until thickened.","Béchamel: melt butter, whisk in flour, cook 2 min. Gradually whisk in warm milk until smooth and thick. Season with nutmeg. Off heat — whisk in egg yolks and Parmesan.","Layer in baking dish: aubergine → lamb mince → aubergine → béchamel.","Bake 180°C for 45 min until top is deep golden. Rest 20 min before cutting."],
+  tip:"Resting moussaka 20 min after baking lets the layers set so it cuts cleanly into neat squares rather than collapsing."},
+
+  {e:"🍕",t:"Neapolitan pizza dough",lv:"Moderate",cu:"Italian",region:"Mediterranean",cat:"Bread & Dough",style:"Traditional",time:"2+ hrs",prep:"20 min",cook:"12 min",stars:3,allergens:["vg"],equip:["Stand mixer (optional)","Pizza stone or heavy baking tray"],pairing:"Cold Peroni or a light Barbera d'Asti",q:"neapolitan pizza dough hand stretched",
+  desc:"True Neapolitan dough — minimal yeast, long fermentation, hand-stretched. It cannot be rushed and must never touch a rolling pin.",
+  ing:["500g '00' flour (or bread flour)","3g instant yeast","10g fine salt","325ml cold water","1 tbsp olive oil"],
+  steps:["Combine flour and water. Rest 30 min (autolyse — gluten develops without kneading).","Add yeast and salt. Knead 8–10 min until smooth and elastic.","Cover. Bulk ferment: 4–8 hrs at room temperature or overnight in fridge.","Divide into 250g balls. Rest at room temperature 1 hr before stretching.","Stretch by pressing from the centre outward with your fingers — leave a thick crust rim. Never use a rolling pin.","Top minimally (quality over quantity). Bake on preheated stone/tray at maximum oven temperature 8–12 min."],
+  tip:"Less yeast + longer fermentation = better flavour and a more open crumb. A cold overnight fridge proof is always superior to a quick warm prove."},
+
+  {e:"🥗",t:"Panzanella (Tuscan bread salad)",lv:"Beginner",cu:"Italian",region:"Mediterranean",cat:"Vegetarian",style:"Traditional",time:"20 min",prep:"15 min",cook:"5 min",stars:1,allergens:["vg","df"],equip:["Large mixing bowl"],pairing:"Chilled Vermentino or sparkling mineral water",q:"panzanella italian bread tomato salad tuscan",
+  desc:"A Tuscan peasant salad built on stale bread soaked in tomato juices. Uses nothing, wastes nothing, and requires truly ripe tomatoes.",
+  ing:["200g stale ciabatta or sourdough, torn into large chunks","4–5 very ripe tomatoes, roughly chopped (save all juice)","1 cucumber, seeds removed, roughly chopped","½ red onion, very thinly sliced","Handful fresh basil leaves","4 tbsp best-quality olive oil","2 tbsp red wine vinegar","Salt and black pepper"],
+  steps:["Soak bread chunks in cold water for 1 min. Lift out and squeeze firmly with both hands — damp but not wet.","Combine tomatoes (with all their juice), cucumber and onion in a large bowl.","Add the squeezed bread. Toss together.","Dress with olive oil, red wine vinegar, salt and pepper. Toss well.","Rest 15 min at room temperature. Add torn basil just before serving."],
+  tip:"This dish only works with genuinely ripe, in-season tomatoes and genuinely stale bread. Supermarket winter tomatoes make a sad panzanella."},
+
+  {e:"🍮",t:"Crème brûlée",lv:"Advanced",cu:"French",region:"Mediterranean",cat:"Desserts",style:"Traditional",time:"3 hrs incl. chill",prep:"15 min",cook:"40 min",stars:4,allergens:["gf"],equip:["4–6 ramekins","Roasting tray","Kitchen blowtorch","Fine mesh strainer"],pairing:"Sauternes or a late-harvest Riesling",q:"creme brulee french vanilla custard dessert",
+  desc:"Silky vanilla custard with a shatteringly thin caramel crust. Teaches tempering eggs, bain-marie baking and sugar work.",
+  ing:["500ml heavy cream (36%+ fat)","1 vanilla bean, split and scraped","5 egg yolks (save whites for another use)","80g caster sugar","4–6 tsp caster sugar (for brûlée — 1 per ramekin)"],
+  steps:["Place cream and vanilla (pod and seeds) in a small saucepan. Heat gently until just simmering. Remove. Infuse 10 min. Remove pod.","Whisk egg yolks and sugar in a bowl until slightly pale.","Pour hot cream into yolks in a thin, steady stream while whisking constantly — this is tempering. Pour too fast and you'll scramble the yolks.","Strain through a fine mesh sieve into a jug. Skim any foam.","Pour into ramekins. Place in a deep roasting tray. Pour boiling water into the tray until halfway up ramekins.","Bake at 150°C for 35–40 min — should be set at the edges with a slight wobble in the centre.","Cool, then refrigerate 2+ hrs. Sprinkle an even, thin layer of caster sugar. Brûlée with a torch in circular motions until amber and crackled."],
+  tip:"The thin stream of cream into yolks while whisking constantly is everything. Too fast = scrambled eggs. Too slow = the eggs warm unevenly."},
+
+  {e:"🥐",t:"Croissants",lv:"Advanced",cu:"French",region:"Mediterranean",cat:"Bread & Dough",style:"Traditional",time:"2 days",prep:"90 min",cook:"20 min",stars:5,allergens:["vg"],equip:["Rolling pin","Refrigerator (essential)","Pastry brush","Baking parchment"],pairing:"Café au lait or a glass of fresh orange juice",q:"croissant french pastry laminated butter flaky",
+  desc:"Laminated pastry with hundreds of butter layers. Temperature discipline across two days separates committed bakers from everyone else.",
+  ing:["500g strong bread flour (12%+ protein)","7g instant yeast","10g fine salt","80g caster sugar","300ml cold full-fat milk","250g cold unsalted European-style butter (for lamination block)","Egg wash: 1 yolk + 1 tbsp milk"],
+  steps:["Day 1: Combine flour, yeast, salt, sugar and milk. Mix until dough forms. Knead briefly — 3–4 min. Do not overdevelop. Shape into a rectangle. Wrap and refrigerate overnight.","Day 2: Beat cold butter between sheets of parchment into a 20×20cm flat slab. Return to fridge — it must be cold but pliable, not hard.","Roll dough to a rectangle. Encase the butter slab. Fold into thirds (letter fold 1). Wrap. Rest 30 min in fridge.","Repeat the letter fold and 30 min rest three more times (4 folds total).","Roll dough to 4mm thick. Cut long isoceles triangles. Roll each up tightly from base to tip. Curve into crescent shape.","Prove at cool room temperature 2–3 hrs until visibly puffed and jiggly when the tray is shaken.","Egg wash twice. Bake at 200°C for 18–20 min until deep amber."],
+  tip:"If butter starts smearing into the dough at any point during rolling, stop and refrigerate for 20 min. Warm butter destroys the layers — there is no recovery."},
+
+  // ── WESTERN EUROPE ──
+  {e:"🥨",t:"Bavarian soft pretzels (Brezeln)",lv:"Moderate",cu:"German",region:"Western Europe",cat:"Bread & Dough",style:"Traditional",time:"90 min",prep:"60 min",cook:"18 min",stars:3,allergens:["vg","df"],equip:["Large pot","Baking trays","Baking parchment"],pairing:"Weissbier (wheat beer) or a cold Märzen",q:"german soft pretzel bavarian bretzel",
+  desc:"Bavaria's iconic lye-dipped bread. The baked baking soda bath creates the signature dark, chewy, mahogany exterior that regular baking cannot achieve.",
+  ing:["500g strong bread flour","7g instant yeast","10g fine salt","1 tsp sugar","300ml warm water","30g soft unsalted butter","Baked soda bath: 4L water + 60g baking soda (spread on tray, bake at 250°C for 1 hr to convert to stronger alkali)","Coarse sea salt or pretzel salt"],
+  steps:["Make dough: combine flour, yeast, salt and sugar. Add water and butter. Knead 8 min until smooth. Prove 1 hr.","Divide into 8 portions. Roll each into a 70cm rope — thicker in the centre, tapered to thin tips.","Form into pretzel shape: make a U-shape, cross the ends twice, fold down and press onto the base.","Arrange on lined trays. Freeze 15 min (this helps them hold shape in the bath without going soft).","Bring baked soda bath to a boil. Dip each pretzel for exactly 30 sec each side using a slotted spoon. Return to lined tray.","Sprinkle with coarse salt. Score the thick part with one diagonal cut. Bake at 220°C for 15–18 min until deep mahogany."],
+  tip:"Baked baking soda (baked at 250°C for 1 hour) is a safe home substitute for food-grade lye. The conversion to sodium carbonate creates the alkaline bath that gives the authentic dark, chewy crust."},
+
+  {e:"🍜",t:"Käsespätzle (cheesy German noodles)",lv:"Moderate",cu:"German",region:"Western Europe",cat:"Pasta & Noodles",style:"Traditional",time:"45 min",prep:"15 min",cook:"30 min",stars:2,allergens:["vg"],equip:["Spätzle press or colander with large holes","Large pot","Oven-safe dish"],pairing:"Dry Riesling (Mosel) or cold Hefeweizen",q:"german spaetzle egg noodles cheese caramelised onions",
+  desc:"Germany's answer to mac and cheese — freshly made egg noodles layered with melted Emmental and crowned with crispy caramelised onions.",
+  ing:["Batter: 300g plain flour, 3 large eggs, 150ml whole milk, 1 tsp salt","150g Emmental or Gruyère, coarsely grated","2 large onions, halved and very thinly sliced","3 tbsp unsalted butter","Salt and freshly ground pepper","Fresh chives to garnish"],
+  steps:["Caramelise onions: melt 2 tbsp butter in a wide pan over low heat. Add onions with a pinch of salt. Cook 25–30 min stirring occasionally until deeply golden and sweet. Set aside.","Make batter: whisk flour, eggs, milk and salt until smooth. It should be pourable but thicker than pancake batter. Beat vigorously — the air helps.","Bring a large pot of generously salted water to boil. Push batter through a spätzle press or large-holed colander directly into the water in batches.","Scoop spätzle out as they float to the surface (1–2 min). Drain.","Layer spätzle and grated cheese in a warm oven-safe dish. Repeat layers ending with cheese.","Warm in oven at 160°C for 5 min until cheese melts. Top with caramelised onions and chives."],
+  tip:"The batter should be wetter than pasta dough — thick but pourable. Too stiff and the spätzle will be heavy and doughy rather than light and tender."},
+
+  {e:"🥩",t:"Sauerbraten",lv:"Advanced",cu:"German",region:"Western Europe",cat:"Meat",style:"Traditional",time:"5 days",prep:"30 min",cook:"2 hrs",stars:4,allergens:["df"],equip:["Large container for marinating","Dutch oven","Fine mesh strainer"],pairing:"German Spätburgunder (Pinot Noir) or robust Dornfelder",q:"sauerbraten german pot roast marinated beef",
+  desc:"Germany's national roast — beef marinated in a vinegar-wine brine for 3–5 days before braising. Patience is the entire recipe.",
+  ing:["1kg beef rump or chuck","Marinade: 500ml red wine vinegar, 500ml dry red wine, 1 onion, 1 carrot, 2 bay leaves, 6 cloves, 8 juniper berries, 1 tsp black peppercorns — brought to boil then cooled","2 tbsp neutral oil, 1 tbsp sugar","150ml sour cream","4 gingersnap biscuits, crushed"],
+  steps:["Boil all marinade ingredients for 5 min. Cool completely. Submerge beef in marinade. Refrigerate 3–5 days, turning daily.","Remove beef and pat bone dry. Strain and reserve marinade.","Brown beef all over in oil in a Dutch oven over high heat.","Add 2 cups of strained marinade and sugar. Cover tightly. Braise at 160°C for 2 hrs.","Remove beef. Strain braising liquid into a saucepan. Add crushed gingersnaps and sour cream. Simmer until thick and smooth.","Slice beef. Pour sauce over. Serve with red cabbage and potato dumplings."],
+  tip:"The longer the marinade, the more tender and complex the flavour. 3 days is minimum; 5 days is traditional. 7 days is the Rhineland way."},
+
+  {e:"🥗",t:"Smørrebrød (Danish open sandwich)",lv:"Beginner",cu:"Scandinavian",region:"Scandinavia",cat:"Snacks & Street Food",style:"Traditional",time:"15 min",prep:"15 min",cook:"0 min",stars:1,allergens:["df"],equip:["Sharp knife","Bread board"],pairing:"Cold Aquavit (small pour) or cold Danish lager",q:"smorrebrod danish open sandwich rye bread",
+  desc:"Denmark's open-faced rye bread sandwich — a deeply cultural food and exercise in balance, seasonal eating and considered assembly.",
+  ing:["Dense dark Danish rye bread (rugbrød), sliced 8mm thick","Good unsalted butter, softened","Choose a topping: pickled herring + raw onion rings + fresh dill / OR smoked salmon + cream cheese + capers + lemon / OR roast beef + remoulade + pickled cucumber","Optional: micro herbs, edible flowers for garnish"],
+  steps:["Spread butter generously on rye bread — it acts as a moisture barrier and flavour base.","Choose your topping combination. Layer the heaviest elements first.","Add garnish elements last — dill, capers, sliced chilli or a small dot of remoulade.","Serve open-faced on a wooden board. Never picked up — always eaten with knife and fork."],
+  tip:"Dense, sour dark rye bread is non-negotiable. Soft sandwich bread misses the entire point — the bread is load-bearing, both structurally and flavourally."},
+
+  {e:"🐟",t:"Gravlax with mustard-dill sauce",lv:"Moderate",cu:"Scandinavian",region:"Scandinavia",cat:"Seafood",style:"Traditional",time:"48 hrs curing",prep:"15 min",cook:"0 min",stars:2,allergens:["df","gf"],equip:["Cling film","Heavy weight (pan + cans)","Sharp thin-bladed knife"],pairing:"Ice-cold aquavit or dry Riesling",q:"gravlax cured salmon dill scandinavian",
+  desc:"Scandinavia's cured salmon — no heat, just salt, sugar and dill over 48 hours. The simplest demonstration that salt is a form of cooking.",
+  ing:["600g very fresh salmon fillet, skin-on, pin bones removed","3 tbsp coarse sea salt","2 tbsp white sugar","1 tsp coarsely ground white pepper","2 tbsp vodka or aquavit","Large bunch fresh dill","Mustard-dill sauce: 3 tbsp Swedish mustard, 1 tbsp Dijon, 2 tbsp sugar, 2 tbsp white wine vinegar, 100ml neutral oil, large handful dill — blended"],
+  steps:["Mix salt, sugar and pepper. Lay salmon skin-side down on a large sheet of cling film.","Coat flesh side with cure mix. Pack a generous layer of dill on top. Drizzle with vodka.","Wrap tightly in cling film. Place skin-side down on a tray. Set a heavy pan with cans on top as a weight.","Refrigerate 48 hrs, flipping every 12 hrs and draining any liquid.","Unwrap. Scrape off dill and cure. Rinse lightly. Pat dry.","Slice paper-thin at a 45° angle, separating slices from skin.","Make sauce: whisk all ingredients until emulsified. Serve alongside with rye bread."],
+  tip:"Weighting the salmon compresses it and ensures the cure penetrates evenly from both sides. The resulting texture should be dense and silky, not flabby."},
+
+  // ── EASTERN EUROPE ──
+  {e:"🫕",t:"Borscht",lv:"Moderate",cu:"Eastern European",region:"Eastern Europe",cat:"Soups & Stews",style:"Traditional",time:"90 min",prep:"25 min",cook:"65 min",stars:2,allergens:["df","gf"],equip:["Large heavy pot","Box grater"],pairing:"Cold vodka (small shot) or a robust red Moldovan wine",q:"borscht ukrainian beetroot soup sour cream",
+  desc:"Ukraine's iconic crimson soup — deep, earthy, sweet and sour all at once. Served hot or cold, always with a generous spoon of sour cream.",
+  ing:["3 medium raw beetroot, peeled and coarsely grated","300g beef chuck or pork shoulder, cubed","1 large onion, diced","2 carrots, grated","3 potatoes, cubed","¼ small cabbage, shredded","2 tbsp tomato paste","3 tbsp white wine vinegar (or more to taste)","2L beef or pork stock","Bunch of dill","Sour cream, salt and pepper"],
+  steps:["Brown meat in oil in a large pot. Add stock. Bring to boil. Skim foam. Simmer 40 min.","In a separate pan, sweat onion and carrot until soft. Add grated beetroot and tomato paste. Cook 5 min. Add 2 tbsp vinegar.","Add beetroot mixture to broth with potatoes and cabbage.","Simmer 20–25 min until all vegetables are completely tender.","Season generously with salt, pepper and more vinegar to taste.","Serve with a large spoon of sour cream and freshly chopped dill."],
+  tip:"The vinegar fixes the borscht's deep crimson colour. Without acid added during cooking, it oxidises and turns brown in the pot."},
+
+  {e:"🥟",t:"Pierogi ruskie",lv:"Moderate",cu:"Eastern European",region:"Eastern Europe",cat:"Snacks & Street Food",style:"Traditional",time:"90 min",prep:"60 min",cook:"30 min",stars:3,allergens:["vg"],equip:["Large pot","Rolling pin","Round cutter or glass (8cm)","Non-stick pan"],pairing:"Cold Polish lager (Żywiec) or kefir",q:"pierogi polish dumplings potato cheese boiled",
+  desc:"Poland's beloved filled dumplings — potato and cheese filling in silky pasta dough, boiled then pan-fried in butter with caramelised onions.",
+  ing:["Dough: 300g plain flour, 1 large egg, 150ml warm water, pinch of salt","Filling: 500g floury potatoes, boiled and mashed; 150g farmer's cheese or full-fat ricotta; 1 large onion, caramelised; salt and pepper","To finish: 2 tbsp butter, 1 large onion (caramelised for topping), sour cream"],
+  steps:["Make dough: combine flour, egg, warm water and salt. Knead until smooth and elastic, 8 min. Rest covered 30 min.","Make filling: combine warm mashed potato with cheese and caramelised onion. Season well. Let cool.","Roll dough to 2–3mm thick. Cut circles ~8cm diameter.","Place 1 tsp filling in centre of each circle. Fold in half. Pinch edges very firmly to seal — no gaps.","Boil in generously salted water until they float + 2 min more. Remove with a slotted spoon.","Pan-fry in butter over medium-high heat until golden on each side. Serve with caramelised onion and sour cream."],
+  tip:"Pinching the edges is critical — press firmly all the way around, twice. Any gap opens during boiling and fills with water, ruining the filling."},
+
+  // ── UNITED KINGDOM ──
+  {e:"🥩",t:"Beef Wellington",lv:"Advanced",cu:"British",region:"United Kingdom",cat:"Meat",style:"Traditional",time:"2.5 hrs",prep:"60 min",cook:"30 min",stars:5,allergens:[],equip:["Heavy frying pan","Cling film","Rolling pin","Meat thermometer"],pairing:"Barolo, Bordeaux (St. Estèphe) or a full-bodied Cabernet Sauvignon",q:"beef wellington puff pastry beef fillet",
+  desc:"Britain's most theatrical dinner centrepiece — tenderloin inside mushroom duxelles, prosciutto and puff pastry. Cold and dry at every stage.",
+  ing:["800g centre-cut beef tenderloin, trimmed of sinew","200g mixed mushrooms, blitzed to very fine crumbs","6 shallots, finely diced","3 sprigs thyme","50g unsalted butter","8 slices prosciutto di Parma","500g all-butter puff pastry","2 tbsp Dijon mustard","2 egg yolks mixed with 1 tbsp milk (egg wash)"],
+  steps:["Sear the tenderloin in a screaming-hot dry pan on all sides until deeply browned (about 2 min per side). Brush all over with Dijon mustard. Cool completely in fridge.","Make duxelles: cook mushrooms and shallots in butter with thyme, stirring often, until every drop of liquid has evaporated. The mixture must be bone dry. Cool in fridge.","Lay a large sheet of cling film. Overlap prosciutto slices into a rectangle. Spread duxelles thinly and evenly. Place cold tenderloin at one edge and roll tightly using the cling film. Twist ends. Refrigerate 30 min minimum.","Roll out pastry. Unwrap tenderloin and place in centre. Fold pastry over, seal tightly, trim excess. Egg wash all over. Refrigerate 15 min.","Score the top decoratively. Egg wash again. Bake at 220°C for 25–30 min. Use a thermometer — 52°C = medium-rare.","Rest 10 min before slicing — do not skip."],
+  tip:"Every component (the beef, the duxelles) must be completely cold before wrapping in pastry. Warmth creates steam which makes the pastry soggy from the inside."},
+
+  {e:"🍲",t:"Beef and Guinness stew",lv:"Moderate",cu:"British",region:"United Kingdom",cat:"Soups & Stews",style:"Traditional",time:"2.5 hrs",prep:"20 min",cook:"2 hrs",stars:2,allergens:["df"],equip:["Dutch oven or heavy casserole"],pairing:"Guinness Extra Stout or a full-bodied Irish whiskey with a splash of water",q:"beef stew Guinness stout braised pub",
+  desc:"A slow braise of chuck beef in Guinness and stock — deeply malty, rich and impossibly comforting. A pub classic perfected at home.",
+  ing:["800g beef chuck, cut into 4cm cubes","500ml Guinness stout","300ml beef stock","2 large onions, diced","3 carrots, cut into chunks","3 garlic cloves, minced","2 tbsp tomato paste","2 tbsp plain flour","Thyme, 2 bay leaves","2 tbsp neutral oil","Salt and black pepper"],
+  steps:["Season beef well. Brown in batches in oil in a Dutch oven over high heat — do not crowd. Remove each batch.","In the same pot, fry onions until soft and golden. Add garlic and tomato paste. Cook 2 min.","Sprinkle flour over onions. Stir and cook 1 min. Pour in Guinness, scraping up all browned bits.","Add stock, browned beef, carrots, thyme and bay leaves. Bring to a simmer.","Cover and cook in a 160°C oven (or on the lowest hob setting) for 2 hrs until beef is completely tender.","Discard bay leaves. Season generously. Serve with crusty bread or mashed potato."],
+  tip:"Brown the beef in small batches in a very hot pan — never crowd it or it will steam and go grey, losing the fond that flavours the whole stew."},
+
+  {e:"🥧",t:"Chicken and leek pie",lv:"Moderate",cu:"British",region:"United Kingdom",cat:"Meat",style:"Home-style",time:"90 min",prep:"35 min",cook:"55 min",stars:2,allergens:[],equip:["25cm pie dish","Rolling pin","Pastry brush"],pairing:"Dry English cider or a white Burgundy (Mâcon)",q:"chicken leek pie shortcrust pastry british",
+  desc:"Britain's great comfort pie — creamy chicken and leek filling under a golden shortcrust lid. Teaches pastry making and sauce consistency.",
+  ing:["Shortcrust pastry: 250g plain flour, 125g cold unsalted butter (cubed), 3–4 tbsp ice-cold water, pinch salt","Filling: 400g cooked chicken, shredded; 3 leeks, sliced 1cm; 200ml chicken stock; 150ml double cream; 2 tbsp butter; 2 tbsp flour; fresh thyme; salt and pepper","Egg wash: 1 egg beaten with 1 tbsp milk"],
+  steps:["Pastry: rub cold butter into flour until it resembles fine breadcrumbs. Add ice water gradually and press into a dough — do not knead. Wrap and rest 30 min in fridge.","Filling: melt butter in pan. Sweat leeks 5 min until soft. Add flour, stir 1 min. Add stock and cream gradually, stirring until thick. Add chicken and thyme. Season generously. Cool.","Roll two-thirds of the pastry. Line the pie dish, letting it hang over the edge.","Fill with cooled chicken mixture. Roll remaining pastry for the lid. Lay over filling. Crimp edges firmly. Trim.","Cut 2 steam vents in the top. Egg wash. Rest in fridge 15 min.","Bake at 200°C for 35–40 min until deep golden."],
+  tip:"Cold butter worked into flour quickly makes short, crumbly pastry. Warm hands develop gluten and make it tough — work fast or use a food processor."},
+
+  {e:"🍮",t:"Sticky toffee pudding",lv:"Moderate",cu:"British",region:"United Kingdom",cat:"Desserts",style:"Traditional",time:"60 min",prep:"20 min",cook:"35 min",stars:2,allergens:[],equip:["20cm square baking tin or 6 individual pudding moulds","Saucepan"],pairing:"Sweet Pedro Ximénez sherry or a scoop of vanilla ice cream",q:"sticky toffee pudding british dessert toffee sauce",
+  desc:"Britain's greatest dessert — a moist date sponge drenched in dark butterscotch sauce. Rich, warming and completely irresistible.",
+  ing:["200g Medjool dates, pitted and finely chopped","175ml boiling water","1 tsp bicarbonate of soda","175g self-raising flour","75g unsalted butter, softened","150g dark muscovado sugar","2 large eggs","1 tsp vanilla extract","Toffee sauce: 200g dark brown sugar, 100g unsalted butter, 200ml double cream","Pinch of salt for the sauce"],
+  steps:["Pour boiling water over chopped dates. Add bicarbonate of soda. Stir and leave 10–12 min until dates have softened into a rough pulp.","Beat butter and sugar until fluffy. Add eggs one at a time. Beat in vanilla.","Fold in flour gently. Fold in date mixture including all the liquid.","Pour into a greased tin. Bake at 180°C for 30–35 min until a skewer comes out clean.","Sauce: melt butter in saucepan. Add sugar, stir until dissolved. Add cream and a pinch of salt. Simmer 3 min.","Poke holes all over the warm pudding with a skewer. Pour half the sauce over to soak in. Serve with remaining sauce and clotted cream or vanilla ice cream."],
+  tip:"Bicarb added to hot dates softens them into a wet paste that keeps the sponge extraordinarily moist — even 3 days after baking."},
+
+  {e:"🥣",t:"Full English breakfast",lv:"Beginner",cu:"British",region:"United Kingdom",cat:"Breakfast",style:"Traditional",time:"25 min",prep:"5 min",cook:"20 min",stars:1,allergens:["df"],equip:["Large frying pan","Small saucepan","Grill or oven"],pairing:"Strong builder's tea with full-fat milk or a flat white",q:"full english breakfast fry up bacon eggs",
+  desc:"Britain's most iconic meal. Managing multiple components to arrive at the plate simultaneously — all hot, all at once — is the actual skill.",
+  ing:["2 back bacon rashers (thick-cut)","2 good pork sausages","2 large eggs","2 halved vine tomatoes","4 button mushrooms","1 tin baked beans","Black pudding, 2 slices (optional)","2 slices thick-cut bread","Oil or butter"],
+  steps:["Start sausages first — they take longest. Grill, bake at 200°C, or pan-fry 12–15 min turning regularly.","Add tomatoes and mushrooms to the pan or grill halfway through sausages.","Add bacon and black pudding to the pan ~8 min before everything is done.","Heat baked beans in a small saucepan, stirring occasionally.","Fry eggs in butter on medium heat ~3 min for sunny-side up.","Toast bread at the very last moment. Everything should arrive on the plate simultaneously and steaming."],
+  tip:"The entire skill of a full English is timing. Start with the slowest component and work backwards. Everything cold at the table is a failure."},
+
+  {e:"🍞",t:"Scotch eggs",lv:"Moderate",cu:"British",region:"United Kingdom",cat:"Snacks & Street Food",style:"Traditional",time:"40 min",prep:"20 min",cook:"20 min",stars:2,allergens:[],equip:["Deep frying pan or pot","Kitchen thermometer","Slotted spoon"],pairing:"Real ale (a good bitter) or cold English mustard on the side",q:"scotch eggs british pub snack sausage",
+  desc:"Soft-boiled eggs encased in seasoned sausage meat, breaded and deep-fried. A British picnic and pub staple.",
+  ing:["4 large eggs (for the centre)","2 extra eggs, beaten (for coating)","400g good pork sausages, removed from skins","1 tbsp wholegrain mustard","1 tsp fresh thyme, chopped","Salt and black pepper","Plain flour","Panko breadcrumbs","Neutral oil for deep frying"],
+  steps:["Soft-boil eggs: lower into boiling water, cook exactly 6 min. Transfer to ice water immediately. Peel carefully.","Mix sausage meat with mustard, thyme, salt and pepper.","Divide sausage meat into 4. Flatten each into a thin patty on cling film. Wrap each egg completely and firmly.","Set up coating station: flour → beaten egg → panko. Coat each scotch egg in that order, pressing breadcrumbs firmly.","Deep fry in 180°C oil for 6–7 min until golden brown and sausage meat is fully cooked.","Drain on paper. Rest 2 min. Halve to reveal the jammy yolk."],
+  tip:"6 minutes boiling gives a set white and a just-jammy yolk. 7 minutes goes fully hard. The texture of that yolk is the whole point."},
+
+  // ── NORTH AMERICA ──
+  {e:"🍔",t:"Smash burger",lv:"Moderate",cu:"American",region:"North America",cat:"Meat",style:"Off the Beat",time:"15 min",prep:"5 min",cook:"10 min",stars:2,allergens:["df"],equip:["Cast iron pan or flat griddle","Heavy metal spatula"],pairing:"Chocolate milkshake or ice-cold American lager",q:"smash burger american beef cast iron",
+  desc:"Thin-patty technique where beef is smashed onto a screaming-hot surface to maximise the Maillard reaction — a crust no regular burger can match.",
+  ing:["400g beef mince (80/20 fat ratio — this is non-negotiable)","4 slices American cheese (or Gruyère for a step up)","4 brioche buns, split and toasted","Pickles (dill, sliced thin)","½ white onion, finely diced","Yellow American mustard","Mayonnaise","Flaky sea salt"],
+  steps:["Divide beef into 4 loose balls (~100g each). Do not season, compress or shape beyond a rough ball.","Heat cast iron pan or griddle over the absolute highest heat for 3–4 min until smoking.","Place a beef ball in the pan. Season the top with salt. Using a heavy metal spatula, smash it as flat as possible immediately.","Leave completely untouched for 90 seconds. Flip once. Immediately lay a cheese slice on top.","While cheese melts, toast buns cut-side down in the burger fat. Assemble: bottom bun, mayo, pickles, onion, patty (cheese-side up), mustard, top bun."],
+  tip:"80/20 mince is the only ratio that works — the fat creates the crust. Lean mince steams and turns grey. Do not compromise on this."},
+
+  {e:"🥩",t:"Texas-style beef brisket",lv:"Advanced",cu:"American",region:"North America",cat:"Meat",style:"Regional",time:"12–14 hrs",prep:"30 min",cook:"12 hrs",stars:5,allergens:["df","gf"],equip:["Offset smoker or kettle grill","Meat thermometer","Butcher paper","Long tongs"],pairing:"Lone Star beer or iced sweet tea",q:"texas bbq beef brisket smoked low slow",
+  desc:"The holy grail of American BBQ — a whole brisket smoked for 12+ hours until the fat renders and a mahogany bark forms. Patience is the only ingredient money can't buy.",
+  ing:["3–4kg whole packer beef brisket (flat + point), fat cap trimmed to 1cm","3 tbsp coarse kosher salt","3 tbsp coarse black pepper (freshly cracked)","Post oak wood chunks or chips","Quality charcoal (not lighter fluid or briquettes)"],
+  steps:["Mix salt and pepper. Rub brisket heavily on all surfaces. Rest at room temperature 1 hr.","Set up smoker with post oak to maintain a steady 110–120°C. No hotter. Place brisket fat-cap up, not directly over heat source.","Smoke for 6 hrs without opening the lid. Target internal temp: 70°C.","Wrap tightly in uncoated butcher paper (not foil — foil softens the bark). Return to smoker.","Continue until internal temperature reaches 95–97°C in the thickest part of the flat — approximately 6 more hrs.","Rest wrapped in a cooler or oven off for minimum 1 hr, ideally 2. Slice against the grain 1cm thick."],
+  tip:"The butcher paper wrap (the Texas Crutch) powers through the temperature stall at ~70°C without softening the bark the way foil does. The rest after cooking is as important as the smoke."},
+
+  {e:"🦞",t:"New England clam chowder",lv:"Moderate",cu:"American",region:"North America",cat:"Soups & Stews",style:"Regional",time:"50 min",prep:"20 min",cook:"30 min",stars:2,allergens:["gf"],equip:["Large heavy-bottomed pot","Clam pot or steamer"],pairing:"Cold Sam Adams Boston Lager or a dry Muscadet",q:"new england clam chowder creamy potato",
+  desc:"Boston's creamy white clam chowder — a cold-weather staple of the American Northeast. Teaches roux-based soup building and clam cookery.",
+  ing:["1kg fresh clams (or 2 × 180g cans chopped clams)","150g smoked bacon or salt pork, diced","1 large onion, diced","3 stalks celery, diced","2 large waxy potatoes, cubed 1.5cm","2 tbsp unsalted butter","2 tbsp plain flour","500ml fish stock","300ml double cream","1 bay leaf, fresh thyme","Salt and white pepper","Oyster crackers to serve"],
+  steps:["Steam fresh clams open in 250ml water (2–3 min). Remove meat. Reserve ALL the clam liquid — strain through a fine cloth.","Fry bacon until crispy in a heavy pot. Remove. Sweat onion and celery in the bacon fat until soft.","Add butter, then flour. Stir and cook 2 min (roux). Whisk in strained clam liquid then fish stock.","Add potatoes, bay and thyme. Simmer 12–15 min until potatoes are tender.","Add cream and clam meat. Simmer very gently for 5 min — do not boil.","Season with salt and white pepper. Serve in warm bowls with bacon on top and oyster crackers."],
+  tip:"Never boil after adding cream and clams — both tighten under high heat and the cream can split. Gentle warmth only from this point."},
+
+  // ── LATIN AMERICA ──
+  {e:"🌮",t:"Al pastor tacos",lv:"Moderate",cu:"Mexican",region:"Latin America",cat:"Meat",style:"Street Food",time:"45 min + marinate",prep:"20 min",cook:"25 min",stars:2,allergens:["df","gf"],equip:["Blender","Griddle or cast iron pan"],pairing:"Cold Modelo Especial or tamarind agua fresca",q:"al pastor tacos mexican street food pork",
+  desc:"Mexico City's Lebanese-Mexican trompo — achiote-marinated pork with charred pineapple, one of the world's great street food fusions.",
+  ing:["600g pork shoulder, sliced very thin","Marinade: 3 dried guajillo chillies (soaked 20 min), 2 chipotles in adobo, 3 garlic cloves, 2 tbsp achiote paste, 100ml orange juice, 2 tbsp white vinegar, 1 tsp dried oregano, 1 tsp cumin — blended smooth","Small corn tortillas","Sliced fresh pineapple","Finely diced white onion, fresh coriander, lime wedges"],
+  steps:["Blend all marinade ingredients until very smooth. Pour over sliced pork. Marinate 4 hrs minimum, overnight ideally.","Cook pork on a ripping-hot dry griddle or cast iron, in thin overlapping layers. Let it char at the edges before moving — 3–4 min per batch.","Grill pineapple slices on the same griddle until caramelised. Roughly chop.","Warm corn tortillas on the griddle until they have a few char marks.","Build tacos: tortilla, chopped pork, charred pineapple, onion, coriander, squeeze of lime."],
+  tip:"Dried guajillo gives colour and gentle heat; chipotle gives smoke; achiote gives the earthy brick-red depth that defines al pastor. All three matter."},
+
+  {e:"🫕",t:"Cajun jambalaya",lv:"Moderate",cu:"Cajun",region:"North America",cat:"Rice",style:"Traditional",time:"60 min",prep:"20 min",cook:"40 min",stars:3,allergens:["df","gf"],equip:["Large Dutch oven or heavy-bottomed pot","Wooden spoon"],pairing:"Cold Abita Amber (Louisiana lager) or bourbon with peach tea",q:"cajun jambalaya louisiana rice chicken sausage",
+  desc:"Louisiana's sacred one-pot — chicken, andouille, the holy trinity and rice cooked in a spiced tomato broth. Never stirred after the rice goes in.",
+  ing:["300g chicken thighs, cut into 3cm pieces","200g andouille sausage (or smoked chorizo), sliced","200g large prawns, peeled","1 onion, 2 celery stalks, 1 green capsicum — all diced (the 'holy trinity')","4 garlic cloves, minced","1 can (400g) crushed tomatoes","1.5 cups long-grain white rice","2 cups chicken stock","2 tsp Cajun seasoning","1 tsp dried thyme, 2 bay leaves","Tabasco and spring onion to serve"],
+  steps:["Brown sausage in a Dutch oven. Remove. Brown chicken in the fat. Remove.","Sauté the holy trinity (onion, celery, capsicum) until soft. Add garlic and Cajun seasoning. Stir 1 min.","Add crushed tomatoes. Cook 5 min until reduced.","Return all meat. Add rice and stock. Stir once. Bring to a boil.","Cover. Reduce to lowest heat. Cook exactly 25 min — do not lift the lid and do not stir.","Lay prawns on top. Cover. Cook 5 more min until pink. Stir gently. Serve with Tabasco and spring onion."],
+  tip:"Like paella, jambalaya must never be stirred after the rice goes in. Stirring creates starch and makes it gluey — leave it alone."},
+
+  {e:"🥩",t:"Argentinian asado",lv:"Moderate",cu:"Argentinian",region:"Latin America",cat:"Meat",style:"Traditional",time:"3 hrs",prep:"30 min",cook:"2.5 hrs",stars:3,allergens:["df","gf"],equip:["Parrilla (Argentine grill) or kettle BBQ","Long tongs","Hardwood charcoal"],pairing:"Malbec (Mendoza) or Torrontés (Salta)",q:"argentinian asado beef ribs grill chimichurri",
+  desc:"Argentina's sacred fire ritual — beef cooked over hardwood coals, very slowly. No marinades, no sauce during cooking. Just fire, salt and patience.",
+  ing:["1.5kg beef tira de asado (flanken-cut short ribs through the bone), or tira de bife","Coarse sea salt","Chimichurri: 1 bunch flat-leaf parsley, 4 garlic cloves, 1 tsp dried oregano, 3 tbsp red wine vinegar, 5 tbsp olive oil, 1 tsp dried chilli flakes, salt and pepper"],
+  steps:["Start a hardwood charcoal fire 60–90 min before cooking. Let it burn down completely to grey, even coals with no active flames.","Season ribs heavily with coarse salt on both sides. Nothing else.","Place ribs bone-side down on the grill, positioned ~35–40cm above the coals. Do not move for 45 min.","Flip once. Continue for 45–60 more min. The meat should be deeply coloured, caramelised at the edges, and tender throughout.","Make chimichurri: finely chop parsley and garlic. Mix with all other ingredients. Rest 20 min for flavours to meld.","Rest meat 8 min. Serve with chimichurri and crusty bread."],
+  tip:"Asado is entirely about fire management and patience. The meat must be far from the coals and given time. High heat chars the outside before the inside becomes tender — a cardinal sin in Argentina."},
+
+  {e:"🥘",t:"Brazilian feijoada",lv:"Moderate",cu:"Brazilian",region:"Latin America",cat:"Soups & Stews",style:"Traditional",time:"3 hrs",prep:"30 min",cook:"2.5 hrs",stars:3,allergens:["df","gf"],equip:["Large heavy pot or Dutch oven"],pairing:"Caipirinha (cachaça, lime, sugar, ice) or dark Brazilian beer",q:"feijoada brazilian black bean pork stew",
+  desc:"Brazil's national dish — rich black bean and pork stew that evolved from slave cooking into the country's most celebrated and joyful recipe.",
+  ing:["500g dried black beans, soaked overnight in cold water","300g pork belly, cubed","200g linguiça or smoked chorizo, sliced","200g smoked pork ribs","100g smoked bacon, cubed","1 large onion, diced","6 garlic cloves, minced","2 bay leaves","1 tsp cumin","Salt and black pepper","To serve: steamed white rice, farofa (toasted cassava flour with butter), sautéed collard greens, sliced orange"],
+  steps:["Drain soaked beans. Cover with fresh water in a large pot. Simmer 45 min until starting to soften.","In a heavy pan, brown pork belly. Add sausage, ribs and bacon. Cook until coloured.","Add onion and garlic to the meat. Fry until soft.","Transfer all meat and the partially-cooked beans together into one large pot. Add enough water to cover by 5cm. Add bay leaves and cumin.","Simmer 1.5–2 hrs until beans are completely creamy and meat is falling-apart tender.","Season generously with salt and pepper. Serve over rice with farofa, collard greens and orange slices."],
+  tip:"Orange slices are served for a reason — the citric acid cuts through the richness of the pork fat and resets the palate between spoonfuls. This is not optional decoration."},
+
+  {e:"🥗",t:"Ceviche with leche de tigre",lv:"Advanced",cu:"Peruvian",region:"Latin America",cat:"Seafood",style:"Traditional",time:"30 min",prep:"25 min",cook:"0 min",stars:4,allergens:["df","gf"],equip:["Sharp knife","Fine mesh strainer","Blender"],pairing:"Pisco sour (Peru's national cocktail) or cold Cusqueña beer",q:"peruvian ceviche lime raw fish leche de tigre",
+  desc:"Peru's national dish — raw fish cured in citric acid until the proteins denature. The window between under-cured and over-cured is measured in minutes.",
+  ing:["500g sashimi-grade white fish (sea bass, corvina or snapper), cut into 1.5cm cubes","Leche de tigre: 150ml fresh lime juice, 50g fish offcuts, 1 garlic clove, 1cm ginger, ½ ají amarillo, small handful coriander, salt — blend and strain through fine sieve","1 red onion, paper-thin sliced","1 ají amarillo chilli, seeded and julienned","Handful fresh coriander leaves","Flaky sea salt","To serve: steamed sweet potato (cooled), choclo (large-kernel corn) or regular corn"],
+  steps:["Slice onion paper-thin. Toss with ½ tsp salt. Rest 10 min. Rinse under cold water. Pat dry (this removes bitterness).","Make leche de tigre: blend fish scraps, lime juice, garlic, ginger, ají and coriander until smooth. Strain through a fine sieve — it should be bright, spicy and very sour.","Place fish cubes in a cold bowl. Pour leche de tigre over. Season with flaky salt. Mix gently.","Cure exactly 3 min — the exterior should turn white and opaque while the interior remains just translucent.","Fold in sliced onion, ají julienne and coriander. Serve immediately.","Plate over sweet potato and corn. The leftover leche de tigre is drunk as a shot."],
+  tip:"Ceviche waits for no one. After 5–6 min the fish becomes tough and rubbery. Assemble, garnish and serve in one continuous movement."},
+];
+
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+let API_KEY = localStorage.getItem('wk_unsplash_key') || '';
+let favourites = JSON.parse(localStorage.getItem('wk_favourites') || '[]');
+let recentlyViewed = JSON.parse(localStorage.getItem('wk_recent') || '[]');
+let filterState = { level:'All', style:'All', region:'All', cuisine:'All', cat:'All' };
+let searchQuery = '';
+let currentRecipeIdx = null;
+let baseServings = 4;
+let currentServings = 4;
+const photoCache = {};
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+function init() {
+  // Theme
+  const savedTheme = localStorage.getItem('wk_theme') || 'light';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+  document.getElementById('theme-btn').textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+
+  // API key
+  if (API_KEY) {
+    document.getElementById('api-input').value = API_KEY;
+    document.getElementById('api-status').textContent = '✓ Key saved';
+    document.getElementById('api-status').className = 'ok';
+  }
+
+  // Sticky filter bar
+  window.addEventListener('scroll', () => {
+    const fs = document.getElementById('filter-section');
+    fs.classList.toggle('scrolled', window.scrollY > 80);
+  });
+
+  // Filter pills
+  document.querySelectorAll('.pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const g = btn.dataset.g, v = btn.dataset.v;
+      document.querySelectorAll(`.pill[data-g="${g}"]`).forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      filterState[g] = v;
+      render();
+    });
+  });
+
+  updateFavCount();
+  renderRecent();
+  render();
+}
+
+// ═══════════════════════════════════════
+// UNSPLASH API
+// ═══════════════════════════════════════
+function saveKey() {
+  const val = document.getElementById('api-input').value.trim();
+  if (!val) return;
+  API_KEY = val;
+  localStorage.setItem('wk_unsplash_key', val);
+  document.getElementById('api-status').textContent = '✓ Photos loading…';
+  document.getElementById('api-status').className = 'ok';
+  render();
+}
+
+async function fetchPhoto(query, idx) {
+  if (!API_KEY) return null;
+  if (photoCache[idx]) return photoCache[idx];
+  try {
+    const res = await fetch(
+      `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=1&orientation=landscape`,
+      { headers: { Authorization: `Client-ID ${API_KEY}` } }
+    );
+    if (!res.ok) {
+      if (res.status === 401) {
+        document.getElementById('api-status').textContent = '✗ Invalid key';
+        document.getElementById('api-status').className = 'err';
+      }
+      return null;
+    }
+    const data = await res.json();
+    if (data.results && data.results.length) {
+      const p = data.results[0];
+      const result = {
+        thumb: p.urls.small,
+        full: p.urls.regular,
+        photographer: p.user.name,
+        photographerUrl: p.user.links.html + '?utm_source=world_kitchen&utm_medium=referral',
+        photoPageUrl: p.links.html + '?utm_source=world_kitchen&utm_medium=referral',
+      };
+      photoCache[idx] = result;
+      return result;
+    }
+    return null;
+  } catch(e) { return null; }
+}
+
+// ═══════════════════════════════════════
+// FILTERS & SEARCH
+// ═══════════════════════════════════════
+function onSearch(input) {
+  searchQuery = input.value.toLowerCase().trim();
+  document.getElementById('search-clear').style.display = searchQuery ? 'block' : 'none';
+  render();
+}
+
+function clearSearch() {
+  document.getElementById('search-input').value = '';
+  searchQuery = '';
+  document.getElementById('search-clear').style.display = 'none';
+  render();
+}
+
+function clearFilters() {
+  filterState = { level:'All', style:'All', region:'All', cuisine:'All', cat:'All' };
+  document.querySelectorAll('.pill').forEach(b => b.classList.toggle('active', b.dataset.v === 'All'));
+  clearSearch();
+}
+
+function getFiltered() {
+  return R.filter(r => {
+    const matchLevel = filterState.level === 'All' || r.lv === filterState.level;
+    const matchStyle = filterState.style === 'All' || r.style === filterState.style;
+    const matchRegion = filterState.region === 'All' || r.region === filterState.region;
+    const matchCuisine = filterState.cuisine === 'All' || r.cu === filterState.cuisine;
+    const matchCat = filterState.cat === 'All' || r.cat === filterState.cat;
+    const matchSearch = !searchQuery ||
+      r.t.toLowerCase().includes(searchQuery) ||
+      r.cu.toLowerCase().includes(searchQuery) ||
+      r.cat.toLowerCase().includes(searchQuery) ||
+      r.style.toLowerCase().includes(searchQuery) ||
+      r.ing.some(i => i.toLowerCase().includes(searchQuery));
+    return matchLevel && matchStyle && matchRegion && matchCuisine && matchCat && matchSearch;
+  });
+}
+
+// ═══════════════════════════════════════
+// STYLE HELPERS
+// ═══════════════════════════════════════
+const STYLE_CTAG = {
+  'Traditional':'ctag-traditional','Fusion':'ctag-fusion','Off the Beat':'ctag-offbeat',
+  'Home-style':'ctag-homestyle','Street Food':'ctag-streetfood','Regional':'ctag-regional'
+};
+const LV_BADGE_CLS = { Beginner:'lv-Beginner', Moderate:'lv-Moderate', Advanced:'lv-Advanced' };
+const LV_MODAL_CLS = { Beginner:'lvb', Moderate:'lvm', Advanced:'lva' };
+
+function starsHTML(n, cls='star') {
+  return Array.from({length:5}, (_,i) =>
+    `<span class="${cls}${i < n ? ' on' : ''}">★</span>`
+  ).join('');
+}
+
+const ALLERGEN_MAP = {
+  gf: { label:'Gluten-free', cls:'a-gf' },
+  df: { label:'Dairy-free',  cls:'a-df' },
+  vg: { label:'Vegetarian',  cls:'a-vg' },
+  nf: { label:'Nut-free',    cls:'a-nf' },
+};
+
+// ═══════════════════════════════════════
+// RENDER GRID
+// ═══════════════════════════════════════
+function render() {
+  const grid = document.getElementById('grid');
+  const empty = document.getElementById('empty');
+  const filtered = getFiltered();
+
+  document.getElementById('result-info').textContent =
+    `${filtered.length} recipe${filtered.length !== 1 ? 's' : ''}${searchQuery ? ` matching "${searchQuery}"` : ''}`;
+
+  // Clear old cards (keep empty state)
+  Array.from(grid.children).forEach(c => { if (c !== empty) c.remove(); });
+  empty.style.display = filtered.length === 0 ? 'block' : 'none';
+
+  filtered.forEach((r, i) => {
+    const idx = R.indexOf(r);
+    const isFav = favourites.includes(idx);
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.style.animationDelay = `${Math.min(i * 25, 300)}ms`;
+
+    const allergenHTML = (r.allergens || []).map(a =>
+      `<span class="allergen ${ALLERGEN_MAP[a].cls}">${ALLERGEN_MAP[a].label}</span>`
+    ).join('');
+
+    const previewIng = r.ing.slice(0, 4).map(x => x.split(',')[0]).join(' · ');
+
+    card.innerHTML = `
+      <div class="card-img" id="cimg-${idx}">
+        <div class="card-emoji-fallback">${r.e}</div>
+        <span class="lv-badge ${LV_BADGE_CLS[r.lv]}">${r.lv}</span>
+        <div class="photo-credit" id="cred-${idx}" style="display:none"></div>
+      </div>
+      <button class="fav-btn ${isFav ? 'active' : ''}" title="${isFav ? 'Remove from favourites' : 'Save recipe'}"
+        onclick="event.stopPropagation(); toggleFav(${idx})" id="fav-${idx}">
+        ${isFav ? '❤️' : '🤍'}
+      </button>
+      <div class="card-body">
+        <div class="difficulty-stars">${starsHTML(r.stars)}</div>
+        <div class="card-title">${r.e} ${r.t}</div>
+        <div class="card-tags">
+          <span class="ctag">${r.cu}</span>
+          <span class="ctag ${STYLE_CTAG[r.style] || ''}">${r.style}</span>
+          <span class="ctag">⏱ ${r.time}</span>
+        </div>
+        ${allergenHTML ? `<div class="allergen-row">${allergenHTML}</div>` : ''}
+        <div class="card-desc">${r.desc}</div>
+        <div class="card-preview">
+          <div class="card-preview-inner">
+            <div class="card-preview-label">Key ingredients</div>
+            ${previewIng}
+          </div>
+        </div>
+      </div>`;
+
+    card.onclick = () => openM(idx);
+    grid.appendChild(card);
+
+    // Load photo async
+    if (API_KEY) {
+      fetchPhoto(r.q, idx).then(photo => {
+        if (!photo) return;
+        const wrap = document.getElementById(`cimg-${idx}`);
+        if (!wrap) return;
+        const img = document.createElement('img');
+        img.src = photo.thumb;
+        img.alt = r.t;
+        img.loading = 'lazy';
+        const fb = wrap.querySelector('.card-emoji-fallback');
+        if (fb) wrap.replaceChild(img, fb);
+        const cred = document.getElementById(`cred-${idx}`);
+        if (cred) {
+          cred.innerHTML = `📷 <a href="${photo.photoPageUrl}" target="_blank">${photo.photographer}</a> · Unsplash`;
+          cred.style.display = 'block';
+        }
+      });
+    }
+  });
+}
+
+// ═══════════════════════════════════════
+// MODAL
+// ═══════════════════════════════════════
+function openM(idx) {
+  const r = R[idx];
+  currentRecipeIdx = idx;
+  baseServings = 4;
+  currentServings = 4;
+
+  // Recently viewed
+  recentlyViewed = [idx, ...recentlyViewed.filter(i => i !== idx)].slice(0, 5);
+  localStorage.setItem('wk_recent', JSON.stringify(recentlyViewed));
+  renderRecent();
+
+  // Image
+  const imgWrap = document.getElementById('mimg-wrap');
+  const emojiFb = document.getElementById('memoji-fb');
+  const existing = imgWrap.querySelector('img');
+  if (existing) existing.remove();
+  emojiFb.textContent = r.e;
+  emojiFb.style.display = 'flex';
+  document.getElementById('mphoto-credit').className = 'modal-photo-credit hidden';
+
+  // Title, badges
+  document.getElementById('mt').textContent = `${r.e} ${r.t}`;
+  document.getElementById('mb').innerHTML =
+    `<span class="mbadge ${LV_MODAL_CLS[r.lv]}">${r.lv}</span>` +
+    `<span class="mbadge">${r.cu}</span><span class="mbadge">${r.region}</span>` +
+    `<span class="mbadge ${STYLE_CTAG[r.style] || ''}">${r.style}</span>` +
+    `<span class="mbadge">${r.cat}</span>`;
+
+  // Stars
+  document.getElementById('mstars').innerHTML = starsHTML(r.stars, 'mstar');
+
+  // Times
+  document.getElementById('mprep').textContent = r.prep || '—';
+  document.getElementById('mcook').textContent = r.cook || '—';
+  document.getElementById('mtotal').textContent = r.time;
+
+  // Allergens
+  const allergens = (r.allergens || []).map(a =>
+    `<span class="allergen ${ALLERGEN_MAP[a].cls}">${ALLERGEN_MAP[a].label}</span>`
+  ).join('');
+  document.getElementById('mallergens').innerHTML = allergens;
+
+  // Scaler
+  document.getElementById('scaler-val').textContent = currentServings;
+  document.getElementById('serves-display').textContent = currentServings;
+
+  // Description
+  document.getElementById('md').textContent = r.desc;
+
+  // Equipment
+  document.getElementById('mequip').innerHTML = (r.equip || []).map(eq =>
+    `<span class="equip-chip">🔧 ${eq}</span>`
+  ).join('');
+
+  // Ingredients (with scaling)
+  renderScaledIngredients(r, currentServings);
+
+  // Steps
+  document.getElementById('ms').innerHTML = r.steps.map(s =>
+    `<li style="margin-bottom:8px">${s}</li>`
+  ).join('');
+
+  // Pairing
+  document.getElementById('mpairing').textContent = r.pairing || 'Water works beautifully with everything.';
+
+  // Tip
+  document.getElementById('mtp').innerHTML = `<strong>Chef's tip:</strong> ${r.tip}`;
+
+  // Fav button
+  updateFavModalBtn(idx);
+
+  // Open
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById('modal').scrollTop = 0;
+  document.body.style.overflow = 'hidden';
+
+  // Load hi-res photo
+  if (API_KEY) {
+    fetchPhoto(r.q, idx).then(photo => {
+      if (!photo) return;
+      const img = document.createElement('img');
+      img.src = photo.full;
+      img.alt = r.t;
+      imgWrap.insertBefore(img, imgWrap.firstChild);
+      emojiFb.style.display = 'none';
+      const credit = document.getElementById('mphoto-credit');
+      credit.className = 'modal-photo-credit';
+      credit.innerHTML =
+        `📷 <a href="${photo.photographerUrl}" target="_blank">${photo.photographer}</a> on ` +
+        `<a href="https://unsplash.com?utm_source=world_kitchen&utm_medium=referral" target="_blank">Unsplash</a> · ` +
+        `<a href="https://unsplash.com/license" target="_blank">Unsplash License</a>`;
+    });
+  }
+}
+
+function closeM() {
+  document.getElementById('overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ═══════════════════════════════════════
+// SERVING SCALER
+// ═══════════════════════════════════════
+function scaleServings(delta) {
+  currentServings = Math.max(1, Math.min(20, currentServings + delta));
+  document.getElementById('scaler-val').textContent = currentServings;
+  document.getElementById('serves-display').textContent = currentServings;
+  if (currentRecipeIdx !== null) {
+    renderScaledIngredients(R[currentRecipeIdx], currentServings);
+  }
+}
+
+function renderScaledIngredients(r, servings) {
+  const multiplier = servings / baseServings;
+  const scaled = r.ing.map(line => {
+    if (multiplier === 1) return `<li>${line}</li>`;
+    // Try to find and scale the leading number
+    const scaled_line = line.replace(/^(\d+(?:\.\d+)?(?:\/\d+)?)/, match => {
+      const num = eval(match); // safe — only numbers
+      const result = Math.round(num * multiplier * 4) / 4;
+      return result % 1 === 0 ? result : result.toFixed(1);
+    });
+    return `<li>${scaled_line !== line ? `<span class="scaled">${scaled_line}</span>` : line}</li>`;
+  });
+  document.getElementById('mi').innerHTML = scaled.join('');
+}
+
+// ═══════════════════════════════════════
+// FAVOURITES
+// ═══════════════════════════════════════
+function toggleFav(idx) {
+  if (favourites.includes(idx)) {
+    favourites = favourites.filter(i => i !== idx);
+    showToast('Removed from saved recipes');
+  } else {
+    favourites = [idx, ...favourites];
+    showToast('Recipe saved ❤️');
+  }
+  localStorage.setItem('wk_favourites', JSON.stringify(favourites));
+  updateFavCount();
+  // Update card button
+  const btn = document.getElementById(`fav-${idx}`);
+  if (btn) {
+    btn.textContent = favourites.includes(idx) ? '❤️' : '🤍';
+    btn.classList.toggle('active', favourites.includes(idx));
+  }
+  // Update modal button if open
+  if (currentRecipeIdx === idx) updateFavModalBtn(idx);
+  renderFavPanel();
+}
+
+function toggleFavModal() {
+  if (currentRecipeIdx === null) return;
+  toggleFav(currentRecipeIdx);
+}
+
+function updateFavModalBtn(idx) {
+  const btn = document.getElementById('fav-modal-btn');
+  const isFav = favourites.includes(idx);
+  btn.textContent = isFav ? '❤️ Saved' : '🤍 Save recipe';
+  btn.classList.toggle('active', isFav);
+}
+
+function updateFavCount() {
+  const badge = document.getElementById('fav-count');
+  badge.textContent = favourites.length;
+  badge.style.display = favourites.length > 0 ? 'flex' : 'none';
+}
+
+function openFavPanel() {
+  renderFavPanel();
+  document.getElementById('fav-panel').classList.add('open');
+  document.getElementById('panel-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeFavPanel() {
+  document.getElementById('fav-panel').classList.remove('open');
+  document.getElementById('panel-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function renderFavPanel() {
+  const list = document.getElementById('fav-list');
+  if (favourites.length === 0) {
+    list.innerHTML = `<div class="fav-empty"><div class="fav-empty-icon">🤍</div>No saved recipes yet.<br>Click the heart on any card to save it here.</div>`;
+    return;
+  }
+  list.innerHTML = favourites.map(idx => {
+    const r = R[idx];
+    if (!r) return '';
+    return `<div class="fav-item" onclick="closeFavPanel(); openM(${idx})">
+      <div class="fav-item-emoji">${r.e}</div>
+      <div class="fav-item-info">
+        <div class="fav-item-name">${r.t}</div>
+        <div class="fav-item-sub">${r.cu} · ${r.lv} · ${r.time}</div>
+      </div>
+      <button class="fav-remove" onclick="event.stopPropagation(); toggleFav(${idx}); renderFavPanel();" title="Remove">✕</button>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════
+// RECENTLY VIEWED
+// ═══════════════════════════════════════
+function renderRecent() {
+  const strip = document.getElementById('recent-strip');
+  const list = document.getElementById('recent-list');
+  if (recentlyViewed.length === 0) { strip.style.display = 'none'; return; }
+  strip.style.display = 'block';
+  list.innerHTML = recentlyViewed.map(idx => {
+    const r = R[idx];
+    if (!r) return '';
+    return `<button class="recent-chip" onclick="openM(${idx})">
+      <span class="chip-emoji">${r.e}</span>${r.t}
+    </button>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════
+// SURPRISE ME
+// ═══════════════════════════════════════
+function surpriseMe() {
+  const filtered = getFiltered();
+  if (filtered.length === 0) { showToast('No recipes to surprise with!'); return; }
+  const r = filtered[Math.floor(Math.random() * filtered.length)];
+  openM(R.indexOf(r));
+}
+
+// ═══════════════════════════════════════
+// THEME
+// ═══════════════════════════════════════
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('wk_theme', next);
+  document.getElementById('theme-btn').textContent = next === 'dark' ? '☀️' : '🌙';
+}
+
+// ═══════════════════════════════════════
+// PRINT
+// ═══════════════════════════════════════
+function printRecipe() {
+  if (currentRecipeIdx === null) return;
+  const r = R[currentRecipeIdx];
+  const multiplier = currentServings / baseServings;
+  const ingHTML = r.ing.map(line => {
+    const scaled = line.replace(/^(\d+(?:\.\d+)?(?:\/\d+)?)/, match => {
+      const num = eval(match);
+      const res = Math.round(num * multiplier * 4) / 4;
+      return res % 1 === 0 ? res : res.toFixed(1);
+    });
+    return `<li>${scaled}</li>`;
+  }).join('');
+  document.getElementById('print-content').innerHTML = `
+    <div class="print-title">${r.e} ${r.t}</div>
+    <div class="print-meta">${r.cu} · ${r.region} · ${r.style} · ${r.lv} · Prep: ${r.prep} · Cook: ${r.cook} · Serves: ${currentServings}</div>
+    <div class="print-section-label">Ingredients (${currentServings} servings)</div>
+    <ul class="print-ing">${ingHTML}</ul>
+    <div class="print-section-label">Method</div>
+    <ol class="print-steps">${r.steps.map(s => `<li>${s}</li>`).join('')}</ol>
+    <div class="print-section-label">Drink pairing</div>
+    <p style="font-size:13px;color:#555;margin-top:4px">${r.pairing}</p>
+    <div class="print-tip"><strong>Chef's tip:</strong> ${r.tip}</div>
+    <div class="print-attr">Recipe from World Kitchen · Photography (if any) from Unsplash · Unsplash License</div>`;
+  document.getElementById('print-area').classList.add('printing');
+  document.body.style.overflow = 'hidden';
+}
+
+function closePrint() {
+  document.getElementById('print-area').classList.remove('printing');
+  document.body.style.overflow = '';
+}
+
+// ═══════════════════════════════════════
+// SHARE
+// ═══════════════════════════════════════
+function shareRecipe() {
+  if (currentRecipeIdx === null) return;
+  const r = R[currentRecipeIdx];
+  const text = `${r.e} ${r.t} — ${r.cu} · ${r.lv} · ${r.time}\n${r.desc}`;
+  if (navigator.share) {
+    navigator.share({ title: r.t, text: text, url: window.location.href });
+  } else if (navigator.clipboard) {
+    navigator.clipboard.writeText(text);
+    showToast('Recipe details copied to clipboard!');
+  }
+}
+
+// ═══════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════
+let toastTimeout;
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+// ═══════════════════════════════════════
+// EVENT LISTENERS
+// ═══════════════════════════════════════
+document.getElementById('overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeM();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeM();
+    closeFavPanel();
+    closePrint();
+  }
+});
+
+// ═══════════════════════════════════════
+// START
+// ═══════════════════════════════════════
+init();
+</script>
+</body>
+</html>
