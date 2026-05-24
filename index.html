@@ -687,13 +687,23 @@ h1 em{font-style:italic;color:var(--rust)}
         </select>
       </div>
       <div class="fdd-group">
-        <label class="fdd-label" for="dd-time">&#9201; Time</label>
+        <label class="fdd-label" for="dd-timefield">&#9201; Time type</label>
+        <select id="dd-timefield" class="fdd-select" onchange="filterState.timeField=this.value;render()">
+          <option value="total">Total time</option>
+          <option value="prep">Prep only</option>
+          <option value="cook">Cook only</option>
+        </select>
+      </div>
+      <div class="fdd-group">
+        <label class="fdd-label" for="dd-time">&#9201; Max time</label>
         <select id="dd-time" class="fdd-select" onchange="onTimeFilter(this.value)">
-          <option value="All">Any time</option>
+          <option value="All">Any duration</option>
           <option value="under15">&lt; 15 min</option>
           <option value="under30">&lt; 30 min</option>
           <option value="under60">&lt; 60 min</option>
-          <option value="over60">60+ min</option>
+          <option value="under120">&lt; 2 hours</option>
+          <option value="under240">&lt; 4 hours</option>
+          <option value="over240">4+ hours</option>
         </select>
       </div>
       <div class="fdd-group">
@@ -717,6 +727,56 @@ h1 em{font-style:italic;color:var(--rust)}
           <option value="cal_desc">Highest calories</option>
           <option value="az">A &#8594; Z</option>
           <option value="za">Z &#8594; A</option>
+        </select>
+      </div>
+      <div class="fdd-group">
+        <label class="fdd-label" for="dd-stars">&#11088; Complexity</label>
+        <select id="dd-stars" class="fdd-select" onchange="onStarsFilter(this.value)">
+          <option value="All">Any complexity</option>
+          <option value="1">&#11088; Quick &amp; easy</option>
+          <option value="2">&#11088;&#11088; Straightforward</option>
+          <option value="3">&#11088;&#11088;&#11088; Needs attention</option>
+          <option value="4">&#11088;&#11088;&#11088;&#11088; Demanding</option>
+          <option value="5">&#11088;&#11088;&#11088;&#11088;&#11088; Masterclass</option>
+        </select>
+      </div>
+      <div class="fdd-group">
+        <label class="fdd-label" for="dd-equip">&#127859; Equipment</label>
+        <select id="dd-equip" class="fdd-select" onchange="onEquipFilter(this.value)">
+          <option value="All">Any equipment</option>
+          <option value="nospecial">No special gear</option>
+          <option value="wok">Wok</option>
+          <option value="pot">Pot / Saucepan</option>
+          <option value="pan">Frying pan</option>
+          <option value="oven">Oven / Baking dish</option>
+          <option value="grill">Grill / BBQ</option>
+          <option value="steamer">Steamer</option>
+          <option value="blender">Blender / Processor</option>
+          <option value="rollingpin">Rolling pin</option>
+          <option value="pastaroll">Pasta machine</option>
+          <option value="mixer">Stand mixer</option>
+          <option value="thermometer">Thermometer</option>
+          <option value="deepfryer">Deep fryer</option>
+          <option value="mortar">Mortar &amp; pestle</option>
+        </select>
+      </div>
+      <div class="fdd-group">
+        <label class="fdd-label" for="dd-method">&#128293; Method</label>
+        <select id="dd-method" class="fdd-select" onchange="onMethodFilter(this.value)">
+          <option value="All">Any method</option>
+          <option value="stirfry">Stir-fried</option>
+          <option value="fry">Pan-fried / Sautéed</option>
+          <option value="bake">Baked / Roasted</option>
+          <option value="steam">Steamed</option>
+          <option value="grill">Grilled / BBQ</option>
+          <option value="boil">Boiled / Simmered</option>
+          <option value="deepfry">Deep fried</option>
+          <option value="braise">Braised / Slow-cooked</option>
+          <option value="smoke">Smoked</option>
+          <option value="poach">Poached</option>
+          <option value="cure">Cured / Pickled / Fermented</option>
+          <option value="mix">Mixed / Assembled / No-heat</option>
+          <option value="raw">Raw / No cook</option>
         </select>
       </div>
     </div>
@@ -5182,26 +5242,34 @@ function getSubstitutions(r){
 
 // Timer detection — extract minutes from step text
 function extractMinutes(text){
-  if(!text)return 0;
-  const patterns=[
-    /(\d+)\s*(?:–|-)\s*\d+\s*hr/i,
-    /(\d+)\s*hr/i,
-    /(\d+)\s*(?:–|-)\s*\d+\s*min/i,
-    /(\d+)\s*min/i,
-    /(\d+)\s*(?:–|-)\s*\d+\s*hour/i,
-    /(\d+)\s*hour/i,
-    /(\d+)\s*sec/i,
-  ];
-  for(const p of patterns){
-    const m=text.match(p);
-    if(m){
-      let mins=parseInt(m[1]);
-      if(/hr|hour/i.test(p.source))mins*=60;
-      if(/sec/i.test(p.source))mins=Math.ceil(mins/60);
-      if(mins>0&&mins<=480)return mins;
-    }
+  if(!text||text==='0 min')return 0;
+  const t=text.toLowerCase().trim();
+  // Days / weeks (inactive / marinating time — use full duration)
+  let days=0,hrs=0,mins=0;
+  const dw=t.match(/(\d+(?:\.\d+)?)\s*(?:days?|weeks?)/);
+  if(dw){
+    const n=parseFloat(dw[1]);
+    days=(/week/.test(dw[0]))?n*7:n;
   }
-  return 0;
+  // Hours — handle decimal like "1.5 hrs", ranges like "2-3 hrs", "2+ hrs"
+  const hr=t.match(/(\d+(?:\.\d+)?)\s*(?:hrs?|hours?)/);
+  if(hr)hrs=parseFloat(hr[1]);
+  // Minutes — handle ranges like "20-30 min"
+  const mn=t.match(/(\d+)\s*(?:–|-)\s*\d+\s*min/)||t.match(/(\d+)\s*min/);
+  if(mn)mins=parseInt(mn[1]);
+  const total=days*1440+Math.round(hrs*60)+mins;
+  return total>0?total:0;
+}
+
+// Get prep, cook and total minutes robustly
+function getRecipeTimes(r){
+  if(!r)return{total:0,prep:0,cook:0};
+  const prep=extractMinutes(r.prep||'');
+  const cook=extractMinutes(r.cook||'');
+  const stated=extractMinutes(r.time||'');
+  // Total = max of stated total vs prep+cook (whichever is larger)
+  const total=Math.max(stated, prep+cook);
+  return{total,prep,cook};
 }
 
 // Technique glossary
@@ -5373,7 +5441,7 @@ let tried=_sanitiseIndices(JSON.parse(localStorage.getItem('wk_tried')||'[]'));
 let recentlyViewed=_sanitiseIndices(JSON.parse(localStorage.getItem('wk_recent')||'[]'));
 let cookLogs=JSON.parse(localStorage.getItem('wk_logs')||'{}');
 let planner=_sanitisePlanner(JSON.parse(localStorage.getItem('wk_planner')||'{}'));
-let filterState={level:'All',style:'All',region:'All',cuisine:'All',cat:'All',calRange:'All',timeRange:'All',allergen:'All'};
+let filterState={level:'All',style:'All',region:'All',cuisine:'All',cat:'All',calRange:'All',timeRange:'All',timeField:'total',allergen:'All',stars:'All',equip:'All',method:'All'};
 let sortBy='default';
 let searchQuery='';
 let ingredientFilters=[];
@@ -5592,7 +5660,7 @@ function onSearch(input){
 }
 function clearSearch(){document.getElementById('search-input').value='';searchQuery='';document.getElementById('search-clear').style.display='none';render();}
 function clearFilters(){
-  filterState={level:'All',style:'All',region:'All',cuisine:'All',cat:'All',calRange:'All',timeRange:'All',allergen:'All'};sortBy='default';
+  filterState={level:'All',style:'All',region:'All',cuisine:'All',cat:'All',calRange:'All',timeRange:'All',timeField:'total',allergen:'All',stars:'All',equip:'All',method:'All'};sortBy='default';
   // Reset level pills
   document.querySelectorAll('.pill[data-g="level"]').forEach(b=>b.classList.toggle('active',b.dataset.v==='All'));
   // Reset all dropdowns
@@ -5602,10 +5670,12 @@ function clearFilters(){
   });
   const ddcal=document.getElementById('dd-cal');
   if(ddcal){ddcal.value='All';ddcal.classList.remove('active-filter');}
-  ['dd-time','dd-allergen','dd-sort'].forEach(id=>{
+  ['dd-time','dd-allergen','dd-sort','dd-stars','dd-equip','dd-method'].forEach(id=>{
     const d=document.getElementById(id);
     if(d){d.value=(id==='dd-sort'?'default':'All');d.classList.remove('active-filter');}
   });
+  const dtf=document.getElementById('dd-timefield');
+  if(dtf)dtf.value='total';
   clearSearch();
   activeCollection=null;
   document.querySelectorAll('.collection-chip').forEach(c=>c.classList.remove('active'));
@@ -5661,14 +5731,103 @@ function getFiltered(){
       if(filterState.calRange==='over600'&&rc<=600)return false;
     }
     if(filterState.timeRange&&filterState.timeRange!=='All'){
-      const mins=extractMinutes(r.time||'');
+      const rt=getRecipeTimes(r);
+      const field=filterState.timeField||'total';
+      const mins=field==='prep'?rt.prep:field==='cook'?rt.cook:rt.total;
       if(filterState.timeRange==='under15'&&mins>=15)return false;
       if(filterState.timeRange==='under30'&&mins>=30)return false;
       if(filterState.timeRange==='under60'&&mins>=60)return false;
-      if(filterState.timeRange==='over60'&&mins<60)return false;
+      if(filterState.timeRange==='under120'&&mins>=120)return false;
+      if(filterState.timeRange==='under240'&&mins>=240)return false;
+      if(filterState.timeRange==='over240'&&mins<240)return false;
     }
     if(filterState.allergen&&filterState.allergen!=='All'){
       if(!(r.allergens||[]).includes(filterState.allergen))return false;
+    }
+    // Stars / Complexity
+    if(filterState.stars&&filterState.stars!=='All'){
+      if((r.stars||0)!==parseInt(filterState.stars))return false;
+    }
+    // Equipment
+    if(filterState.equip&&filterState.equip!=='All'){
+      const eq=(r.equip||[]).map(e=>e.toLowerCase());
+      const EQ={
+        wok:        ['wok','large wok','carbon steel wok','large wok with lid',
+                     'large wok for steaming'],
+        pot:        ['saucepan','large pot','large heavy pot','heavy pot','large saucepan',
+                     'large stockpot','heavy saucepan','heavy-bottomed pot','medium saucepan',
+                     'small saucepan','large heavy saucepan','heavy-based saucepan',
+                     'wide saucepan','heavy lidded pot or dutch oven','heavy-based pot',
+                     'stock pot','clay pot or large heavy pot','large pot or wok',
+                     'medium pot','heavy pot or wok','heavy saucepan','clay pot'],
+        pan:        ['frying pan','large frying pan','small frying pan','non-stick pan',
+                     'non-stick frying pan','large non-stick pan','large flat pan',
+                     'heavy pan','tawa','griddle','cast iron griddle','comal',
+                     'non-stick skillet','large non-stick skillet','large non-stick frying pan'],
+        oven:       ['oven','baking tray','baking stone','baking sheet','cast iron pan',
+                     'dutch oven','roasting tin','roasting tray','baking tin',
+                     'large baking dish','baking dish','oven dish','large roasting tin',
+                     'cast iron skillet','cast iron','roasting rack','heavy baking tray',
+                     'large oven dish','large cast iron pan','cast iron casserole',
+                     'oven-safe frying pan','oven-safe pan','large ovenproof pan',
+                     'ovenproof dish','large ovenproof dish','casserole dish',
+                     'large casserole','heavy casserole','heavy dutch oven',
+                     'heavy-based casserole','baking steel','heavy baking tray'],
+        grill:      ['grill or grill pan','charcoal grill','charcoal grill or bbq',
+                     'charcoal grill or grill pan','grill','bbq','grill pan',
+                     'cast iron grill pan','gas grill','bbq grill','grill or oven',
+                     'charcoal grill or gas grill','large grill pan','bbq or oven'],
+        steamer:    ['steamer','bamboo steamer','steam pot','large wok for steaming',
+                     'double boiler','bain-marie','steamer or large wok with lid',
+                     'steamer basket','bamboo steamer or steamer'],
+        blender:    ['blender','food processor','immersion blender',
+                     'food processor or blender','high-speed blender'],
+        rollingpin: ['rolling pin','pasta machine or rolling pin'],
+        pastaroll:  ['pasta machine','pasta machine or rolling pin'],
+        mixer:      ['stand mixer','electric mixer'],
+        thermometer:['thermometer','meat thermometer','kitchen thermometer'],
+        deepfryer:  ['deep fryer'],
+        mortar:     ['mortar and pestle','mortar','pestle'],
+      };
+      const allSpecial=Object.values(EQ).flat();
+      const has=(k)=>EQ[k]&&EQ[k].some(t=>eq.includes(t));
+      const hasAny=allSpecial.some(t=>eq.includes(t));
+      if(filterState.equip==='nospecial'&&hasAny)return false;
+      else if(filterState.equip!=='nospecial'&&!has(filterState.equip))return false;
+    }
+    // Cooking method
+    if(filterState.method&&filterState.method!=='All'){
+      const _st=((r.steps||[]).join(' ')).toLowerCase();
+      const _al=(_st+(r.desc||'')).toLowerCase();
+      const MM={
+        deepfry:  /deep.fri|deep fry/.test(_al),
+        stirfry:  /stir.fr/.test(_al),
+        fry:      /\bfry\b|\bfried\b|\bfries\b|\bsaute|\bpan.fr|\bflip/.test(_al),
+        bake:     /\bbake\b|\broast\b/.test(_st),
+        steam:    /\bsteam\b|\bblanch\b/.test(_st),
+        grill:    /\bgrill\b|charcoal|\bbbq\b/.test(_st),
+        braise:   /\bbrais\b|slow.cook|braised/.test(_al),
+        boil:     /\bboil\b|\bsimmer\b|\bstew\b|\bblanch\b|\bheat\b|\bwarm\b/.test(_st),
+        poach:    /\bpoach\b/.test(_al),
+        smoke:    /smok/.test(_al),
+        cure:     /\bcure\b|\bpickl\b|\bferm|\bmarinate\b/.test(_al),
+        mix:      /\bmix\b|\bwhisk\b|\btoss\b|\bfold\b|\bassembl|\barrange\b|\bdress\b|\bslice\b|\bplate\b/.test(_al),
+        raw:      extractMinutes(r.cook||'')<=5,
+      };
+      const fm=filterState.method;
+      if(fm==='deepfry'&&!MM.deepfry)return false;
+      else if(fm==='stirfry'&&!MM.stirfry)return false;
+      else if(fm==='fry'&&!(MM.fry||MM.deepfry||MM.stirfry))return false;
+      else if(fm==='bake'&&!MM.bake)return false;
+      else if(fm==='steam'&&!MM.steam)return false;
+      else if(fm==='grill'&&!MM.grill)return false;
+      else if(fm==='braise'&&!MM.braise)return false;
+      else if(fm==='boil'&&!MM.boil)return false;
+      else if(fm==='poach'&&!MM.poach)return false;
+      else if(fm==='smoke'&&!MM.smoke)return false;
+      else if(fm==='cure'&&!MM.cure)return false;
+      else if(fm==='mix'&&!(MM.mix||MM.raw))return false;
+      else if(fm==='raw'&&!MM.raw)return false;
     }
     return true;
   });
@@ -5691,10 +5850,13 @@ function onSort(v){
   if(dd)dd.classList.toggle('active-filter',v!=='default');
   render();
 }
-function onTimeFilter(v){
+function onTimeFilter(v,field){
   filterState.timeRange=v;
+  if(field)filterState.timeField=field;
   const dd=document.getElementById('dd-time');
   if(dd)dd.classList.toggle('active-filter',v!=='All');
+  const df=document.getElementById('dd-timefield');
+  if(df&&field)df.value=field;
   render();
 }
 function onAllergenFilter(v){
@@ -5703,11 +5865,32 @@ function onAllergenFilter(v){
   if(dd)dd.classList.toggle('active-filter',v!=='All');
   render();
 }
+function onStarsFilter(v){
+  filterState.stars=v;
+  const dd=document.getElementById('dd-stars');
+  if(dd)dd.classList.toggle('active-filter',v!=='All');
+  render();
+}
+function onEquipFilter(v){
+  filterState.equip=v;
+  const dd=document.getElementById('dd-equip');
+  if(dd)dd.classList.toggle('active-filter',v!=='All');
+  render();
+}
+function onMethodFilter(v){
+  filterState.method=v;
+  const dd=document.getElementById('dd-method');
+  if(dd)dd.classList.toggle('active-filter',v!=='All');
+  render();
+}
 function updateActiveChips(){
   const ac=document.getElementById('active-chips');if(!ac)return;
   const calLabels={under200:'<200 kcal','200to400':'200-400 kcal','400to600':'400-600 kcal',over600:'>600 kcal'};
-  const timeLbls={under15:'<15 min',under30:'<30 min',under60:'<60 min',over60:'60+ min'};
+  const timeLbls={under15:'<15 min',under30:'<30 min',under60:'<60 min',under120:'<2 hrs',under240:'<4 hrs',over240:'4+ hrs'};
   const allergenLbls={gf:'Gluten-free',df:'Dairy-free',vg:'Vegan',nf:'Nut-free'};
+  const starsLbls={'1':'⭐ Quick & easy','2':'⭐⭐ Straightforward','3':'⭐⭐⭐ Needs attention','4':'⭐⭐⭐⭐ Demanding','5':'⭐⭐⭐⭐⭐ Masterclass'};
+  const equipLbls={wok:'Wok',pot:'Pot/Saucepan',pan:'Frying pan',oven:'Oven/Baking',grill:'Grill/BBQ',steamer:'Steamer',blender:'Blender',rollingpin:'Rolling pin',pastaroll:'Pasta machine',mixer:'Stand mixer',thermometer:'Thermometer',deepfryer:'Deep fryer',mortar:'Mortar & pestle',nospecial:'No special gear'};
+  const methodLbls={deepfry:'Deep fried',stirfry:'Stir-fried',fry:'Pan-fried',bake:'Baked/Roasted',steam:'Steamed',grill:'Grilled/BBQ',boil:'Boiled/Simmered',braise:'Braised',smoke:'Smoked',poach:'Poached',cure:'Cured/Pickled',mix:'Mixed/Assembled',raw:'Raw/No cook'};
   const chips=[];
   Object.entries(filterState).forEach(([k,v])=>{
     if(v==='All')return;
@@ -5715,6 +5898,10 @@ function updateActiveChips(){
     if(k==='calRange')lbl=calLabels[v]||v;
     else if(k==='timeRange')lbl=timeLbls[v]||v;
     else if(k==='allergen')lbl=allergenLbls[v]||v;
+    else if(k==='stars')lbl=starsLbls[v]||v;
+    else if(k==='equip')lbl=equipLbls[v]||v;
+    else if(k==='method')lbl=methodLbls[v]||v;
+    else if(k==='timeField')return;
     chips.push('<span class="active-chip" onclick="clearOne(\'' + k + '\')">' + lbl + ' \u00d7</span>');
   });
   if(sortBy!=='default')chips.push('<span class="active-chip" style="background:var(--gold);color:var(--ink)" onclick="onSort(\'default\')">Sort: ' + sortBy + ' \u00d7</span>');
@@ -5726,6 +5913,9 @@ function clearOne(key){
   if(key==='calRange'){const d=document.getElementById('dd-cal');if(d){d.value='All';d.classList.remove('active-filter');}}
   else if(key==='timeRange'){filterState.timeRange='All';const d=document.getElementById('dd-time');if(d){d.value='All';d.classList.remove('active-filter');}}
   else if(key==='allergen'){filterState.allergen='All';const d=document.getElementById('dd-allergen');if(d){d.value='All';d.classList.remove('active-filter');}}
+  else if(key==='stars'){filterState.stars='All';const d=document.getElementById('dd-stars');if(d){d.value='All';d.classList.remove('active-filter');}}
+  else if(key==='equip'){filterState.equip='All';const d=document.getElementById('dd-equip');if(d){d.value='All';d.classList.remove('active-filter');}}
+  else if(key==='method'){filterState.method='All';const d=document.getElementById('dd-method');if(d){d.value='All';d.classList.remove('active-filter');}}
   else{const d=document.getElementById('dd-'+key);if(d){d.value='All';d.classList.remove('active-filter');}}
   render();
 }
